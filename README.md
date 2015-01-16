@@ -1,6 +1,8 @@
 Ebony
 =====
 
+[![GoDoc](https://godoc.org/github.com/logrusorgru/ebony?status.svg)](https://godoc.org/github.com/logrusorgru/ebony)
+
 Golang red-black tree with uint index, not thread safe
 
 ### Methods
