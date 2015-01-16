@@ -4,8 +4,8 @@ package ebony
 import "runtime"
 
 const (
-	RED   = true
-	BLACK = false
+	red   = true
+	black = false
 )
 
 type node struct {
@@ -17,12 +17,13 @@ type node struct {
 	value  interface{}
 }
 
-var sentinel = &node{nil, nil, nil, BLACK, 0, nil}
+var sentinel = &node{nil, nil, nil, black, 0, nil}
 
 func init() {
 	sentinel.left, sentinel.right = sentinel, sentinel
 }
 
+// Tree
 type Tree struct {
 	root  *node
 	count uint
@@ -77,42 +78,42 @@ func (t *Tree) rotateRight(x *node) {
 }
 
 func (t *Tree) insertFixup(x *node) {
-	for x != t.root && x.parent.color == RED {
+	for x != t.root && x.parent.color == red {
 		if x.parent == x.parent.parent.left {
 			y := x.parent.parent.right
-			if y.color == RED {
-				x.parent.color = BLACK
-				y.color = BLACK
-				x.parent.parent.color = RED
+			if y.color == red {
+				x.parent.color = black
+				y.color = black
+				x.parent.parent.color = red
 				x = x.parent.parent
 			} else {
 				if x == x.parent.right {
 					x = x.parent
 					t.rotateLeft(x)
 				}
-				x.parent.color = BLACK
-				x.parent.parent.color = RED
+				x.parent.color = black
+				x.parent.parent.color = red
 				t.rotateRight(x.parent.parent)
 			}
 		} else {
 			y := x.parent.parent.left
-			if y.color == RED {
-				x.parent.color = BLACK
-				y.color = BLACK
-				x.parent.parent.color = RED
+			if y.color == red {
+				x.parent.color = black
+				y.color = black
+				x.parent.parent.color = red
 				x = x.parent.parent
 			} else {
 				if x == x.parent.left {
 					x = x.parent
 					t.rotateRight(x)
 				}
-				x.parent.color = BLACK
-				x.parent.parent.color = RED
+				x.parent.color = black
+				x.parent.parent.color = red
 				t.rotateLeft(x.parent.parent)
 			}
 		}
 	}
-	t.root.color = BLACK
+	t.root.color = black
 }
 
 // silent rewrite if exist
@@ -136,7 +137,7 @@ func (t *Tree) insertNode(id uint, value interface{}) {
 	x.parent = parent
 	x.left = sentinel
 	x.right = sentinel
-	x.color = RED
+	x.color = red
 	if parent != nil {
 		if id < parent.id {
 			parent.left = x
@@ -151,58 +152,58 @@ func (t *Tree) insertNode(id uint, value interface{}) {
 }
 
 func (t *Tree) deleteFixup(x *node) {
-	for x != t.root && x.color == BLACK {
+	for x != t.root && x.color == black {
 		if x == x.parent.left {
 			w := x.parent.right
-			if w.color == RED {
-				w.color = BLACK
-				x.parent.color = RED
+			if w.color == red {
+				w.color = black
+				x.parent.color = red
 				t.rotateLeft(x.parent)
 				w = x.parent.right
 			}
-			if w.left.color == BLACK && w.right.color == BLACK {
-				w.color = RED
+			if w.left.color == black && w.right.color == black {
+				w.color = red
 				x = x.parent
 			} else {
-				if w.right.color == BLACK {
-					w.left.color = BLACK
-					w.color = RED
+				if w.right.color == black {
+					w.left.color = black
+					w.color = red
 					t.rotateRight(w)
 					w = x.parent.right
 				}
 				w.color = x.parent.color
-				x.parent.color = BLACK
-				w.right.color = BLACK
+				x.parent.color = black
+				w.right.color = black
 				t.rotateLeft(x.parent)
 				x = t.root
 			}
 		} else {
 			w := x.parent.left
-			if w.color == RED {
-				w.color = BLACK
-				x.parent.color = RED
+			if w.color == red {
+				w.color = black
+				x.parent.color = red
 				t.rotateRight(x.parent)
 				w = x.parent.left
 			}
-			if w.right.color == BLACK && w.left.color == BLACK {
-				w.color = RED
+			if w.right.color == black && w.left.color == black {
+				w.color = red
 				x = x.parent
 			} else {
-				if w.left.color == BLACK {
-					w.right.color = BLACK
-					w.color = RED
+				if w.left.color == black {
+					w.right.color = black
+					w.color = red
 					t.rotateLeft(w)
 					w = x.parent.left
 				}
 				w.color = x.parent.color
-				x.parent.color = BLACK
-				w.left.color = BLACK
+				x.parent.color = black
+				w.left.color = black
 				t.rotateRight(x.parent)
 				x = t.root
 			}
 		}
 	}
-	x.color = BLACK
+	x.color = black
 }
 
 // silent
@@ -238,7 +239,7 @@ func (t *Tree) deleteNode(z *node) {
 		z.id = y.id
 		z.value = y.value
 	}
-	if y.color == BLACK {
+	if y.color == black {
 		t.deleteFixup(x)
 	}
 	t.count--
@@ -249,12 +250,11 @@ func (t *Tree) findNode(id uint64) *node {
 	for current != sentinel {
 		if id == current.id {
 			return current
+		}
+		if id < current.id {
+			current = current.left
 		} else {
-			if id < current.id {
-				current = current.left
-			} else {
-				current = current.right
-			}
+			current = current.right
 		}
 	}
 	return sentinel
@@ -292,7 +292,7 @@ func (t *Tree) Count() uint {
 	return t.count
 }
 
-// Move, silent O(2logn)
+// Move, silent, changes index of value O(2logn)
 func (t *Tree) Move(oid, nid uint) {
 	if n := t.findNode(id); n != sentinel {
 		t.insertNode(n.id, n.value)
@@ -300,14 +300,15 @@ func (t *Tree) Move(oid, nid uint) {
 	}
 }
 
-// flush O(1)
+// Flush the tree O(1)
 func (t *Tree) Flush() *Tree {
 	t.root = sentinel
 	runtime.GC()
 	return t
 }
 
-// range O(logn+m), m = len(range), [b,e], b < e (!)
+// Range returns all values in given range if any.
+// O(logn+m), m = len(range), [b,e], b < e (!)
 func (t *Tree) Range(from, to uint) []interface{} {
 	values := []interface{}{}
 	current := t.root
@@ -324,18 +325,17 @@ func (t *Tree) Range(from, to uint) []interface{} {
 				}
 			}
 			return values
+		}
+		if from < current.id {
+			current = current.left
 		} else {
-			if from < current.id {
-				current = current.left
-			} else {
-				current = current.right
-			}
+			current = current.right
 		}
 	}
 	return nil
 }
 
-// max O(logn)
+// Max returns maximum index and its value O(logn)
 func (t *Tree) Max() (uint, interface{}) {
 	current := t.root
 	for current.left != sentinel {
@@ -344,7 +344,7 @@ func (t *Tree) Max() (uint, interface{}) {
 	return current.data.Id, current.data.Ptr
 }
 
-// min O(logn)
+// Min returns minimum indedx and its value O(logn)
 func (t *Tree) Min() (uint, interface{}) {
 	current := t.root
 	for current.right != sentinel {
