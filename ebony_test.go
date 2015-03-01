@@ -14,19 +14,35 @@ func TestNew(t *testing.T) {
 	}
 }
 
-/*
-// create new RB-Tree
-func New() *Tree {
-	return &Tree{
-		root: sentinel,
+func TestSet(t *testing.T) {
+	x := "x"
+	tr := New()
+	tr.Set(0, x)
+	if tr.root.id != 0 {
+		t.Error("wrong id")
+	}
+	if tr.root.value.(string) != "x" {
+		t.Error("wrong value")
+	}
+	if tr.count != 1 {
+		t.Error("wrong count")
 	}
 }
 
-// Set, silent O(logn)
-func (t *Tree) Set(id uint, value interface{}) {
-	t.insertNode(id, value)
+func TestDel(t *testing.T) {
+	x := "x"
+	tr := New()
+	tr.Set(0, x)
+	tr.Del(0)
+	if tr.count != 0 {
+		t.Error("wrong count after del")
+	}
+	if tr.root != sentinel {
+		t.Error("wrong tree state after del")
+	}
 }
 
+/*
 // Del, silent O(logn)
 func (t *Tree) Del(id uint) {
 	t.deleteNode(t.findNode(id))
