@@ -1,16 +1,20 @@
 package ebony
 
 import (
+	//	"fmt"
+	//	"github.com/kr/pretty"
 	"testing"
 )
+
+// basic suit
 
 func TestNew(t *testing.T) {
 	tr := New()
 	if tr.count != 0 {
-		t.Error("the Tree is new, but count != 0")
+		t.Error("[new] count != 0")
 	}
 	if tr.root != sentinel {
-		t.Error("the Tree is new, but root != sentinel")
+		t.Error("[new] root != sentinel")
 	}
 }
 
@@ -19,13 +23,13 @@ func TestSet(t *testing.T) {
 	tr := New()
 	tr.Set(0, x)
 	if tr.root.id != 0 {
-		t.Error("wrong id")
+		t.Error("[set] wrong id")
 	}
 	if tr.root.value.(string) != "x" {
-		t.Error("wrong value")
+		t.Error("[set] wrong value")
 	}
 	if tr.count != 1 {
-		t.Error("wrong count")
+		t.Error("[set] wrong count")
 	}
 }
 
@@ -35,34 +39,70 @@ func TestDel(t *testing.T) {
 	tr.Set(0, x)
 	tr.Del(0)
 	if tr.count != 0 {
-		t.Error("wrong count after del")
+		t.Error("[del] wrong count after del")
 	}
 	if tr.root != sentinel {
-		t.Error("wrong tree state after del")
+		t.Error("[del] wrong tree state after del")
+	}
+}
+
+func TestGet(t *testing.T) {
+	x := "x"
+	tr := New()
+	tr.Set(0, x)
+	val := tr.Get(0)
+	switch v := val.(type) {
+	case string:
+		if v != x {
+			t.Error("[get] wrong returned value")
+		}
+	default:
+		t.Error("[get] wrong type of returned value")
+	}
+	if tr.count != 1 {
+		t.Error("[get] wrong count")
+	}
+}
+
+func TestExist(t *testing.T) {
+	x := "x"
+	tr := New()
+	tr.Set(0, x)
+	val := tr.Exist(0)
+	if !val {
+		t.Error("[exist] existing is not exist")
+	}
+	val = tr.Exist(12)
+	if val {
+		t.Error("[exist] not existing is exist")
+	}
+}
+
+func TestCount(t *testing.T) {
+	x := "x"
+	tr := New()
+	if tr.count != 0 {
+		t.Errorf("[get] wrong count, expected 0, got %d", tr.count)
+	}
+	tr.Set(0, x)
+	if tr.count != 1 {
+		t.Errorf("[get] wrong count, expected 1, got %d", tr.count)
+	}
+	tr.Set(1, x)
+	if tr.count != 2 {
+		t.Errorf("[get] wrong count, expected 2, got %d", tr.count)
+	}
+	tr.Del(1)
+	if tr.count != 1 {
+		t.Errorf("[get] wrong count, expected 1, got %d", tr.count)
+	}
+	tr.Del(0)
+	if tr.count != 0 {
+		t.Errorf("[get] wrong count, expected 0, got %d", tr.count)
 	}
 }
 
 /*
-// Del, silent O(logn)
-func (t *Tree) Del(id uint) {
-	t.deleteNode(t.findNode(id))
-}
-
-// Get O(logn)
-func (t *Tree) Get(id uint) interface{} {
-	return t.findNode(id).value
-}
-
-// Exist O(logn)
-func (t *Tree) Exist(id uint) bool {
-	return t.findNode(id) != sentinel
-}
-
-// Count O(1)
-func (t *Tree) Count() uint {
-	return t.count
-}
-
 // Move, silent, changes index of value O(2logn)
 func (t *Tree) Move(oid, nid uint) {
 	if n := t.findNode(oid); n != sentinel {

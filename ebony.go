@@ -132,12 +132,14 @@ func (t *Tree) insertNode(id uint, value interface{}) {
 			current = current.right
 		}
 	}
-	x := &node{}
-	x.value = value
-	x.parent = parent
-	x.left = sentinel
-	x.right = sentinel
-	x.color = red
+	x := &node{
+		value:  value,
+		parent: parent,
+		left:   sentinel,
+		right:  sentinel,
+		color:  red,
+		id:     id,
+	}
 	if parent != nil {
 		if id < parent.id {
 			parent.left = x
