@@ -133,7 +133,7 @@ func (t *Tree) insertNode(id uint, value interface{}) {
 		}
 	}
 	x := &node{}
-	x.data = data
+	x.value = value
 	x.parent = parent
 	x.left = sentinel
 	x.right = sentinel
@@ -245,7 +245,7 @@ func (t *Tree) deleteNode(z *node) {
 	t.count--
 }
 
-func (t *Tree) findNode(id uint64) *node {
+func (t *Tree) findNode(id uint) *node {
 	current := t.root
 	for current != sentinel {
 		if id == current.id {
@@ -294,8 +294,8 @@ func (t *Tree) Count() uint {
 
 // Move, silent, changes index of value O(2logn)
 func (t *Tree) Move(oid, nid uint) {
-	if n := t.findNode(id); n != sentinel {
-		t.insertNode(n.id, n.value)
+	if n := t.findNode(oid); n != sentinel {
+		t.insertNode(nid, n.value)
 		t.deleteNode(n)
 	}
 }
@@ -341,7 +341,7 @@ func (t *Tree) Max() (uint, interface{}) {
 	for current.left != sentinel {
 		current = current.left
 	}
-	return current.data.Id, current.data.Ptr
+	return current.id, current.value
 }
 
 // Min returns minimum indedx and its value O(logn)
@@ -350,5 +350,5 @@ func (t *Tree) Min() (uint, interface{}) {
 	for current.right != sentinel {
 		current = current.right
 	}
-	return current.data.Id, current.data.Ptr
+	return current.id, current.value
 }
