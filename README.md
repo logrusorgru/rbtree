@@ -44,9 +44,25 @@ go get github.com/logrusorgru/ebony
 ```
 
 Test
+
 ```bash
 cd $GOPATH/src/github.com/logrusorgru/ebony
 go test
+```
+
+Run benchmark
+
+_expensive_
+
+```bash
+cd $GOPATH/src/github.com/logrusorgru/ebony
+go test -test.bench .
+```
+_limited_
+
+```bash
+cd $GOPATH/src/github.com/logrusorgru/ebony
+go test -test.benchtime=0.1s -test.bench .
 ```
 
 ### Usage
