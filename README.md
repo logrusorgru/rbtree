@@ -33,7 +33,6 @@ node := 3*sizeof(uintptr) +
           sizeof(uint) +
           sizeof(bool) +
           sizeof(interface{}) // data
-// data is interface{} //=> sizeof(data) = sizeof(pure data) + sizeof(uintptr)
 ```
 
 ### Install
