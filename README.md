@@ -28,10 +28,13 @@ Golang red-black tree with uint index, not thread safe
 
 O(*n*&times;node),
 
-node = 3&times;ptr_size +
-       uint_size +
-       bool_size +
-       data_size
+```go
+node := 3*sizeof(uintptr) +
+          sizeof(uint) +
+          sizeof(bool) +
+          sizeof(interface{}) // data
+// data is interface{} //=> sizeof(data) = sizeof(pure data) + sizeof(uintptr)
+```
 
 ### Install
 
