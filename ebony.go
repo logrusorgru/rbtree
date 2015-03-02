@@ -305,43 +305,23 @@ func (t *Tree) Move(oid, nid uint) {
 // Flush the tree O(1)
 func (t *Tree) Flush() *Tree {
 	t.root = sentinel
+	t.count = 0
 	runtime.GC()
 	return t
 }
 
+// Moved to draft
+//
 // Range returns all values in given range if any.
-// O(logn+m), m = len(range), [b,e], b < e (!)
-func (t *Tree) Range(from, to uint) []interface{} {
-	values := []interface{}{}
-	current := t.root
-	for current != sentinel {
-		if from == current.id {
-			values = append(values, current.value)
-			current = current.left
-			for current != sentinel {
-				if current.id <= to {
-					values = append(values, current.value)
-					current = current.left
-				} else {
-					break
-				}
-			}
-			return values
-		}
-		if from < current.id {
-			current = current.left
-		} else {
-			current = current.right
-		}
-	}
-	return nil
-}
+// O(logn+m), m = len(range), [b,e] order dependent of cpm(b, e)
+//func (t *Tree) Range(from, to uint) []interface{} {
+//}
 
 // Max returns maximum index and its value O(logn)
 func (t *Tree) Max() (uint, interface{}) {
 	current := t.root
-	for current.left != sentinel {
-		current = current.left
+	for current.right != sentinel {
+		current = current.right
 	}
 	return current.id, current.value
 }
@@ -349,8 +329,8 @@ func (t *Tree) Max() (uint, interface{}) {
 // Min returns minimum indedx and its value O(logn)
 func (t *Tree) Min() (uint, interface{}) {
 	current := t.root
-	for current.right != sentinel {
-		current = current.right
+	for current.left != sentinel {
+		current = current.left
 	}
 	return current.id, current.value
 }
