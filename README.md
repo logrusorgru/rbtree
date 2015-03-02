@@ -3,7 +3,7 @@ Ebony
 
 [![GoDoc](https://godoc.org/github.com/logrusorgru/ebony?status.svg)](https://godoc.org/github.com/logrusorgru/ebony)
 [![WTFPL License](https://img.shields.io/badge/license-wtfpl-blue.svg)](http://www.wtfpl.net/about/)
-build-pass
+[![Build Status](https://travis-ci.org/logrusorgru/ebony.svg)](https://travis-ci.org/logrusorgru/ebony)
 covers-100%
 
 Golang red-black tree with uint index, not thread safe
