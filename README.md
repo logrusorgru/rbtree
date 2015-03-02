@@ -6,6 +6,8 @@ Ebony
 
 Golang red-black tree with uint index, not thread safe
 
+[Nice visualization](http://www.cs.usfca.edu/~galles/visualization/RedBlack.html)
+
 ### Methods
 
 | Method name | Time |
