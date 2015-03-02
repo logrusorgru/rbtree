@@ -9,7 +9,7 @@ func ExampleNew() {
 	// *ebony.Tree
 }
 
-func ExampleSet() {
+func ExampleTree_Set() {
 	tr := New()
 	tr.Set(0, "hello")
 	fmt.Println(tr.Get(0))
@@ -17,7 +17,7 @@ func ExampleSet() {
 	// hello
 }
 
-func ExampleDel() {
+func ExampleTree_Del() {
 	tr := New()
 	tr.Set(0, "hello")
 	tr.Del(0)
@@ -26,7 +26,7 @@ func ExampleDel() {
 	// false
 }
 
-func ExampleGet() {
+func ExampleTree_Get() {
 	tr := New()
 	tr.Set(0, "hello")
 	fmt.Println(tr.Get(0))
@@ -34,7 +34,7 @@ func ExampleGet() {
 	// hello
 }
 
-func ExampleExist() {
+func ExampleTree_Exist() {
 	tr := New()
 	tr.Set(0, "hello")
 	fmt.Println(tr.Exist(0))
@@ -42,7 +42,7 @@ func ExampleExist() {
 	// true
 }
 
-func ExampleCount() {
+func ExampleTree_Count() {
 	tr := New()
 	tr.Set(0, "hello")
 	fmt.Println(tr.Count())
@@ -56,7 +56,7 @@ func ExampleCount() {
 	// 2
 }
 
-func ExampleMove() {
+func ExampleTree_Move() {
 	tr := New()
 	tr.Set(0, "hello")
 	tr.Move(0, 1)
@@ -65,7 +65,7 @@ func ExampleMove() {
 	// hello
 }
 
-func ExampleMin() {
+func ExampleTree_Min() {
 	tr := New()
 	tr.Set(0, "hello")
 	tr.Set(1, "hi")
@@ -74,7 +74,7 @@ func ExampleMin() {
 	// 0 hello
 }
 
-func ExampleMax() {
+func ExampleTree_Max() {
 	tr := New()
 	tr.Set(0, "hello")
 	tr.Set(1, "hi")
@@ -83,7 +83,7 @@ func ExampleMax() {
 	// 1 hi
 }
 
-func ExampleFlush() {
+func ExampleTree_Flush() {
 	tr := New()
 	tr.Set(0, "hello")
 	tr.Set(1, "hi")
