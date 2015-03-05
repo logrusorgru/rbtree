@@ -23,6 +23,8 @@ Golang red-black tree with uint index, not thread safe
 | Max   | O(log*n*) |
 | Min   | O(log*n*) |
 | Flush | O(1) |
+| Walk  |  -   |
+| Range |  -   |
 
 ### Memory usage
 

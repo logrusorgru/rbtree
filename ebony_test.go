@@ -192,7 +192,6 @@ func TestMin(t *testing.T) {
 	}
 }
 
-/*
 func TestRange(t *testing.T) {
 	tr := New()
 	tr.Set(0, "x")
@@ -200,25 +199,53 @@ func TestRange(t *testing.T) {
 	tr.Set(2, "z")
 	tr.Set(3, "m")
 	tr.Set(4, "n")
-	valsg := tr.Range(1, 3)
-	fmt.Printf("%# v\n", pretty.Formatter(tr))
-	fmt.Printf("%# v\n", pretty.Formatter(valsg))
-	valse := []string{"y", "z", "m"}
-	for i := 0; i < len(valse) && i < len(valsg); i++ {
-		x := valse[i]
-		r := valsg[i]
-		switch v := r.(type) {
-		case string:
-			if v != x {
-				t.Errorf("[range] wrong returned value, expected '%s', got '%s'", x, v)
+	{
+		vls := tr.Range(1, 3)
+		if len(vls) != 3 {
+			t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
+		}
+		r13 := []string{"y", "z", "m"}
+		for i := 0; i < len(vls) && i < len(r13); i++ {
+			if vls[i] != r13[i] {
+				t.Errorf("[range] wrong value, expected '%s', got '%s'", r13[i], vls[i])
 			}
-		default:
-			t.Errorf("[range] wrong type of returned value, expected 'string', got '%T'", v)
 		}
 	}
-	if len(valse) != len(valsg) {
-		t.Errorf("[range] wrong number of values, expected %d, got %d", len(valse), len(valsg))
+	{
+		vls := tr.Range(3, 1)
+		if len(vls) != 3 {
+			t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
+		}
+		r13 := []string{"m", "z", "y"}
+		for i := 0; i < len(vls) && i < len(r13); i++ {
+			if vls[i] != r13[i] {
+				t.Errorf("[range] wrong value, expected '%s', got '%s'", r13[i], vls[i])
+			}
+		}
 	}
-
+	{
+		vls := tr.Range(1, 9)
+		if len(vls) != 4 {
+			t.Errorf("[range] wrong range length, expected 4, got %d", len(vls))
+		}
+		r13 := []string{"y", "z", "m", "n"}
+		for i := 0; i < len(vls) && i < len(r13); i++ {
+			if vls[i] != r13[i] {
+				t.Errorf("[range] wrong value, expected '%s', got '%s'", r13[i], vls[i])
+			}
+		}
+	}
+	tr.Del(0)
+	{
+		vls := tr.Range(4, 0)
+		if len(vls) != 4 {
+			t.Errorf("[range] wrong range length, expected 4, got %d", len(vls))
+		}
+		r13 := []string{"n", "m", "z", "y"}
+		for i := 0; i < len(vls) && i < len(r13); i++ {
+			if vls[i] != r13[i] {
+				t.Errorf("[range] wrong value, expected '%s', got '%s'", r13[i], vls[i])
+			}
+		}
+	}
 }
-*/

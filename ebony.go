@@ -1,7 +1,10 @@
 // rb-tree with uint index, not thread safe
 package ebony
 
-import "runtime"
+import (
+	"errors"
+	"runtime"
+)
 
 const (
 	red   = true
@@ -269,7 +272,9 @@ func New() *Tree {
 	}
 }
 
-// Set, silent O(logn)
+// Set, silent O(logn).This will overwrite the existing value.
+// Use the construction `if !tr.Exist(key) { tr.Set(key, value) }`, if you need a method SetNx().
+// Its complexity from O(logn) to O(2logn)
 func (t *Tree) Set(id uint, value interface{}) {
 	t.insertNode(id, value)
 }
@@ -310,13 +315,6 @@ func (t *Tree) Flush() *Tree {
 	return t
 }
 
-// Moved to draft
-//
-// Range returns all values in given range if any.
-// O(logn+m), m = len(range), [b,e] order dependent of cpm(b, e)
-//func (t *Tree) Range(from, to uint) []interface{} {
-//}
-
 // Max returns maximum index and its value O(logn)
 func (t *Tree) Max() (uint, interface{}) {
 	current := t.root
@@ -333,4 +331,132 @@ func (t *Tree) Min() (uint, interface{}) {
 		current = current.left
 	}
 	return current.id, current.value
+}
+
+type Walker func(key uint, value interface{}) error
+
+var Stop = errors.New("stop a walking")
+
+func (n *node) walk_left(from, to uint, wl Walker) error {
+	if n.id > from {
+		if n.left != sentinel {
+			if err := n.left.walk_left(from, to, wl); err != nil {
+				return err
+			}
+		}
+	}
+	if n.id >= from && n.id <= to {
+		if err := wl(n.id, n.value); err != nil {
+			return err
+		}
+	}
+	if n.id < to {
+		if n.right != sentinel {
+			if err := n.right.walk_left(from, to, wl); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (n *node) walk_right(from, to uint, wl Walker) error {
+	if n.id < from {
+		if n.right != sentinel {
+			if err := n.right.walk_right(from, to, wl); err != nil {
+				return err
+			}
+		}
+	}
+	if n.id <= from && n.id >= to {
+		if err := wl(n.id, n.value); err != nil {
+			return err
+		}
+	}
+	if n.id > to {
+		if n.left != sentinel {
+			if err := n.left.walk_right(from, to, wl); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
+// Walking on tree.
+// You can to use any error to stop a walking.
+// Standart Stop error provided, for example:
+//
+//    if err := tr.Walk(0, 500, myWalker); err != nil && err != ebony.Stop {
+//        log.Println(err) // real error
+//    }
+//
+// To pass through the entire tree, use the minimum possible and
+// maximum possible values of the index. For example:
+//
+//    const (
+//        MinUint = 0
+//        MaxUint = ^uint(0)
+//    )
+//
+//    tr.Walk(MinUint, MaxUint, myWalker)
+//
+func (t *Tree) Walk(from, to uint, wl Walker) error {
+	if from == to {
+		node := t.findNode(from)
+		if node != sentinel {
+			return wl(node.id, node.value)
+		}
+		return nil
+	} else if from < to {
+		return t.root.walk_left(from, to, wl)
+	} // else if to < from
+	return t.root.walk_right(from, to, wl)
+}
+
+// Range returns all values in given range if any.
+// O(logn+m), m = len(range), [b,e] order dependent of cpm(b, e)
+// Recursive. The required stack size is proportional to the height of the tree.
+// If there aren't values the result will be nil
+// To simulate GraterThen and LaterThen methods use the minimum possible and
+// maximum possible values of the index. For example:
+//
+//    const (
+//        MinUint = 0
+//        MaxUint = ^uint(0)
+//    )
+//
+//    gt78 := tr.Range(78, MaxUint)
+//
+// To take k-v pairs use Walk method with custom walker like here:
+//
+//    type Pair struct {
+//        Key   uint
+//        Value interface{}
+//    }
+//
+//    func RangeKV(tr *ebony.Tree, from, to uint) []Pair {
+//        pr := []Pair{}
+//        wl := func(key uint, value interface{}) error {
+//            pr = append(pr, Pair{key, value})
+//            return nil
+//        }
+//        tr.Walk(from, to, wl)
+//        if len(pr) == 0 {
+//            return nil
+//        }
+//        return pr
+//    }
+//
+func (t *Tree) Range(from, to uint) []interface{} {
+	vals := []interface{}{}
+	wl := func(_ uint, value interface{}) error {
+		vals = append(vals, value)
+		return nil
+	}
+	t.Walk(from, to, wl)
+	if len(vals) == 0 {
+		return nil
+	}
+	return vals
 }
