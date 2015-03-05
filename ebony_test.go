@@ -249,3 +249,84 @@ func TestRange(t *testing.T) {
 		}
 	}
 }
+
+func TestWalk(t *testing.T) {
+	tr := New()
+	tr.Set(0, "x")
+	tr.Set(1, "y")
+	tr.Set(2, "z")
+	tr.Set(3, "m")
+	tr.Set(4, "n")
+	type pair struct {
+		Key   uint
+		Value interface{}
+	}
+	vls := []pair{}
+	wl := func(key uint, value interface{}) error {
+		vls = append(vls, pair{key, value})
+		return nil
+	}
+	{
+		if err := tr.Walk(1, 3, wl); err != nil {
+			t.Errorf("[range] unexpected wlking error '%v'", err)
+		}
+		if len(vls) != 3 {
+			t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
+		}
+		r13 := []pair{
+			pair{1, "y"},
+			pair{2, "z"},
+			pair{3, "m"},
+		}
+		for i := 0; i < len(vls) && i < len(r13); i++ {
+			if vls[i].Value != r13[i].Value {
+				t.Errorf("[range] wrong value, expected '%s', got '%s'", r13[i].Value, vls[i].Value)
+			}
+			if vls[i].Key != r13[i].Key {
+				t.Errorf("[range] wrong key, expected '%d', got '%d'", r13[i].Key, vls[i].Key)
+			}
+		}
+	}
+	{
+		vls = nil
+		if err := tr.Walk(3, 1, wl); err != nil {
+			t.Errorf("[range] unexpected wlking error '%v'", err)
+		}
+		if len(vls) != 3 {
+			t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
+		}
+		r13 := []pair{
+			pair{3, "m"},
+			pair{2, "z"},
+			pair{1, "y"},
+		}
+		for i := 0; i < len(vls) && i < len(r13); i++ {
+			if vls[i].Value != r13[i].Value {
+				t.Errorf("[range] wrong value, expected '%s', got '%s'", r13[i].Value, vls[i].Value)
+			}
+			if vls[i].Key != r13[i].Key {
+				t.Errorf("[range] wrong key, expected '%d', got '%d'", r13[i].Key, vls[i].Key)
+			}
+		}
+	}
+	vls = nil
+	{
+		vls := []interface{}{}
+		wl = func(_ uint, value interface{}) error {
+			if value == "z" {
+				return Stop
+			}
+			vls = append(vls, value)
+			return nil
+		}
+		if err := tr.Walk(1, 3, wl); err != nil && err != Stop {
+			t.Errorf("[range] unexpected wlking error '%v'", err)
+		}
+		if len(vls) != 1 {
+			t.Errorf("[range] wrong walking result length, expected 1, got %d", len(vls))
+		}
+		if vls[0] != "y" {
+			t.Errorf("[range] wrong walking result, expected [y], got %v", vls)
+		}
+	}
+}

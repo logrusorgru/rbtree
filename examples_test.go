@@ -92,3 +92,33 @@ func ExampleTree_Flush() {
 	// Output:
 	// 0
 }
+
+func ExampleTree_Range() {
+	tr := New()
+	tr.Set(0, "zero")
+	tr.Set(1, "one")
+	tr.Set(2, "two")
+	tr.Set(3, "three")
+	fmt.Println(tr.Range(1, 2))
+	fmt.Println(tr.Range(2, 1))
+	// Output:
+	// [one two]
+	// [two one]
+}
+
+func ExampleTree_Walk() {
+	tr := New()
+	tr.Set(1, "one")
+	tr.Set(2, "two")
+	tr.Set(3, "three")
+	wl := func(key uint, value interface{}) error {
+		fmt.Println(key, "-", value)
+		return nil
+	}
+	const maxUint = ^uint(0)
+	tr.Walk(0, maxUint, wl)
+	// Output:
+	// 1 - one
+	// 2 - two
+	// 3 - three
+}

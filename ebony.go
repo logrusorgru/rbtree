@@ -272,8 +272,13 @@ func New() *Tree {
 	}
 }
 
-// Set, silent O(logn).This will overwrite the existing value.
-// Use the construction `if !tr.Exist(key) { tr.Set(key, value) }`, if you need a method SetNx().
+// Set, silent O(logn). This will overwrite the existing value.
+// To simulate SetNx() method use:
+//
+//    if !tr.Exist(key) {
+//        tr.Set(key, value)
+//    }
+//
 // Its complexity from O(logn) to O(2logn)
 func (t *Tree) Set(id uint, value interface{}) {
 	t.insertNode(id, value)
@@ -333,8 +338,10 @@ func (t *Tree) Min() (uint, interface{}) {
 	return current.id, current.value
 }
 
+// walker function
 type Walker func(key uint, value interface{}) error
 
+// error for stop walking
 var Stop = errors.New("stop a walking")
 
 func (n *node) walk_left(from, to uint, wl Walker) error {
