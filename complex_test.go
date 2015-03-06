@@ -1,7 +1,8 @@
 package ebony
 
 import (
-	//"errors"
+	"errors"
+	"fmt"
 	"math/rand"
 	"testing"
 	"time"
@@ -176,6 +177,44 @@ func TestRandomSetRange(t *testing.T) {
 				t.Errorf("[random set range] wrong value in range, expected %d, got %d", kv[kv_keys[i]], vals[i])
 			}
 		}
+	}
+}
+
+func TestRandomSetWalk(t *testing.T) {
+	tr := New()
+	kv := make(map[uint]int64)
+	for i := 0; i < COUNT; i++ {
+		k := uint(rand.Int63n(time.Now().Unix()))
+		v := rand.Int63n(time.Now().Unix())
+		tr.Set(k, v)
+		kv[k] = v
+		if uint(len(kv)) != tr.Count() {
+			t.Errorf("[random set walk] wrong count, expected %d, got %d", len(kv), tr.Count())
+		}
+	}
+	var count int
+	wl := func(key uint, value interface{}) error {
+		count++
+		val := tr.Get(key)
+		if val != value {
+			return errors.New(fmt.Sprintf("wrong value, expected %d, got %d", value, val))
+		}
+		return nil
+	}
+	// direct order
+	if err := tr.Walk(MinUint, MaxUint, wl); err != nil {
+		t.Errorf("[random set walk] direct order: unexpected walking error, '%v'", err)
+	}
+	if count != len(kv) {
+		t.Errorf("[random set walk] direct order: wrong walking count, expected, %d, got %d", len(kv), count)
+	}
+	// reverse order
+	count = 0
+	if err := tr.Walk(MaxUint, MinUint, wl); err != nil {
+		t.Errorf("[random set walk] reverse order: unexpected walking error, '%v'", err)
+	}
+	if count != len(kv) {
+		t.Errorf("[random set walk] reverse order: wrong walking count, expected, %d, got %d", len(kv), count)
 	}
 }
 

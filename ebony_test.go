@@ -2,6 +2,24 @@ package ebony
 
 import "testing"
 
+// foundation suit
+
+/*
+moved to: not necessary
+
+func TestInit(t *testing.T) {
+	if sentinel.left != sentinel {
+		t.Error("[init] left child of sentinel is not reference to self")
+	}
+	if sentinel.right != sentinel {
+		t.Error("[init] right child of sentinel is not reference to self")
+	}
+	if sentinel.color != black {
+		t.Error("[init] sentinel color is not black")
+	}
+}
+*/
+
 // basic suit
 
 func TestNew(t *testing.T) {
@@ -268,7 +286,7 @@ func TestWalk(t *testing.T) {
 	}
 	{
 		if err := tr.Walk(1, 3, wl); err != nil {
-			t.Errorf("[range] unexpected wlking error '%v'", err)
+			t.Errorf("[range] unexpected walking error '%v'", err)
 		}
 		if len(vls) != 3 {
 			t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
@@ -290,7 +308,7 @@ func TestWalk(t *testing.T) {
 	{
 		vls = nil
 		if err := tr.Walk(3, 1, wl); err != nil {
-			t.Errorf("[range] unexpected wlking error '%v'", err)
+			t.Errorf("[range] unexpected walking error '%v'", err)
 		}
 		if len(vls) != 3 {
 			t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
@@ -309,7 +327,6 @@ func TestWalk(t *testing.T) {
 			}
 		}
 	}
-	vls = nil
 	{
 		vls := []interface{}{}
 		wl = func(_ uint, value interface{}) error {
@@ -320,13 +337,32 @@ func TestWalk(t *testing.T) {
 			return nil
 		}
 		if err := tr.Walk(1, 3, wl); err != nil && err != Stop {
-			t.Errorf("[range] unexpected wlking error '%v'", err)
+			t.Errorf("[range] unexpected walking error '%v'", err)
 		}
 		if len(vls) != 1 {
 			t.Errorf("[range] wrong walking result length, expected 1, got %d", len(vls))
 		}
 		if vls[0] != "y" {
 			t.Errorf("[range] wrong walking result, expected [y], got %v", vls)
+		}
+	}
+	{
+		vls := []interface{}{}
+		wl = func(_ uint, value interface{}) error {
+			if value == "z" {
+				return Stop
+			}
+			vls = append(vls, value)
+			return nil
+		}
+		if err := tr.Walk(3, 1, wl); err != nil && err != Stop {
+			t.Errorf("[range] unexpected walking error '%v'", err)
+		}
+		if len(vls) != 1 {
+			t.Errorf("[range] wrong walking result length, expected 1, got %d", len(vls))
+		}
+		if vls[0] != "m" {
+			t.Errorf("[range] wrong walking result, expected [m], got %v", vls)
 		}
 	}
 }
