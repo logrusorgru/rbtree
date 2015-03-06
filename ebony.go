@@ -1,4 +1,18 @@
 // rb-tree with uint index, not thread safe
+//
+// Usage notes
+//
+// A `nil` is the value. Use `Del()` to delete value. But if value doesn't exist
+// method `Get()` returns `nil`. You can to use `struct{}` as an emty value to
+// avoid confusions. `Walk()` doesn't support `Tree` manipulations, yet (`Set()`
+// and `Del()` ops.). See [godoc](https://godoc.org/github.com/logrusorgru/ebony)
+// for any details.
+//
+// If you want to lookup the tree much more than change it, take a look
+// at LLRB (if memory usage are critical)
+//
+//     Read http://www.read.seas.harvard.edu/~kohler/notes/llrb.html
+//     Source https://github.com/petar/GoLLRB
 package ebony
 
 import (

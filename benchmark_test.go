@@ -93,6 +93,31 @@ func BenchmarkSeqMax(b *testing.B) {
 	b.ReportAllocs()
 }
 
+func BenchmarkSeqWlk(b *testing.B) {
+	b.StopTimer()
+	tr := New()
+	for i := 0; i < b.N; i++ {
+		tr.Set(uint(i), nil)
+	}
+	wl := func(_ uint, _ interface{}) error {
+		return nil
+	}
+	b.StartTimer()
+	tr.Walk(MinUint, MaxUint, wl)
+	b.ReportAllocs()
+}
+
+func BenchmarkSeqRng(b *testing.B) {
+	b.StopTimer()
+	tr := New()
+	for i := 0; i < b.N; i++ {
+		tr.Set(uint(i), nil)
+	}
+	b.StartTimer()
+	tr.Range(MinUint, MaxUint)
+	b.ReportAllocs()
+}
+
 // random
 
 func shuffle(ary []uint) {
@@ -212,5 +237,38 @@ func BenchmarkRndMax(b *testing.B) {
 	for range ks {
 		tr.Max()
 	}
+	b.ReportAllocs()
+}
+
+func BenchmarkRndWlk(b *testing.B) {
+	b.StopTimer()
+	tr := New()
+	ks := make([]uint, 0, b.N)
+	for i := 0; i < b.N; i++ {
+		k := uint(rand.Int63n(time.Now().Unix()))
+		ks = append(ks, k)
+		tr.Set(k, nil)
+	}
+	shuffle(ks)
+	wl := func(_ uint, _ interface{}) error {
+		return nil
+	}
+	b.StartTimer()
+	tr.Walk(MinUint, MaxUint, wl)
+	b.ReportAllocs()
+}
+
+func BenchmarkRndRng(b *testing.B) {
+	b.StopTimer()
+	tr := New()
+	ks := make([]uint, 0, b.N)
+	for i := 0; i < b.N; i++ {
+		k := uint(rand.Int63n(time.Now().Unix()))
+		ks = append(ks, k)
+		tr.Set(k, nil)
+	}
+	shuffle(ks)
+	b.StartTimer()
+	tr.Range(MinUint, MaxUint)
 	b.ReportAllocs()
 }

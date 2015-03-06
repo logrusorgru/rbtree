@@ -1,6 +1,7 @@
 package ebony
 
 import (
+	//"errors"
 	"math/rand"
 	"testing"
 	"time"
@@ -79,3 +80,144 @@ func TestNilSet(t *testing.T) {
 		}
 	}
 }
+
+func TestOneSizeRange(t *testing.T) {
+	tr := New()
+	tr.Set(0, "a")
+	tr.Set(1, "b")
+	tr.Set(2, "c")
+	if vls := tr.Range(1, 1); len(vls) != 1 {
+		t.Errorf("[one size range] wrong length of values, expected 1, got %d", len(vls))
+	} else if len(vls) == 1 && vls[0] != "b" {
+		t.Errorf("[one size range] wrong value, expected 'b', got '%s'", vls[0])
+	}
+}
+
+func TestOneSizeWalk(t *testing.T) {
+	tr := New()
+	tr.Set(0, "a")
+	tr.Set(1, "b")
+	tr.Set(2, "c")
+	var ekey uint
+	var evalue interface{}
+	wl := func(key uint, value interface{}) error {
+		ekey = key
+		evalue = value
+		return nil
+	}
+	if err := tr.Walk(1, 1, wl); err != nil {
+		t.Errorf("[one size walk] unexpected walking error '%v'", err)
+	}
+	if ekey != 1 {
+		t.Errorf("[one size walk] wrong key, expected 1, got %d", ekey)
+	}
+	if evalue != "b" {
+		t.Errorf("[one size walk] wrong value, expected 'b', got '%s'", evalue)
+	}
+}
+
+// ref.: http://stackoverflow.com/q/23276417/1816872
+func qsort(a []uint) {
+	if len(a) < 2 {
+		return
+	}
+	left, right := 0, len(a)-1
+	pivotIndex := rand.Int() % len(a)
+	a[pivotIndex], a[right] = a[right], a[pivotIndex]
+	for i := range a {
+		if a[i] < a[right] {
+			a[i], a[left] = a[left], a[i]
+			left++
+		}
+	}
+	a[left], a[right] = a[right], a[left]
+	qsort(a[:left])
+	qsort(a[left+1:])
+}
+
+func TestRandomSetRange(t *testing.T) {
+	tr := New()
+	kv := make(map[uint]int64)
+	for i := 0; i < COUNT; i++ {
+		k := uint(rand.Int63n(time.Now().Unix()))
+		v := rand.Int63n(time.Now().Unix())
+		tr.Set(k, v)
+		kv[k] = v
+		if uint(len(kv)) != tr.Count() {
+			t.Errorf("[random set range] wrong count, expected %d, got %d", len(kv), tr.Count())
+		}
+	}
+	// direct order
+	if vals := tr.Range(MinUint, MaxUint); len(vals) != len(kv) {
+		t.Errorf("[random set range] wrong length of range values, expected %d, got %d", len(kv), len(vals))
+	} else {
+		kv_keys := make([]uint, 0, len(kv))
+		for k, _ := range kv {
+			kv_keys = append(kv_keys, k)
+		}
+		qsort(kv_keys)
+		for i := 0; i < len(vals); i++ {
+			if kv[kv_keys[i]] != vals[i] {
+				t.Errorf("[random set range] wrong value in range, expected %d, got %d", kv[kv_keys[i]], vals[i])
+			}
+		}
+	}
+	// reverse order
+	if vals := tr.Range(MaxUint, MinUint); len(vals) != len(kv) {
+		t.Errorf("[random set range] wrong length of range values, expected %d, got %d", len(kv), len(vals))
+	} else {
+		kv_keys := make([]uint, 0, len(kv))
+		for k, _ := range kv {
+			kv_keys = append(kv_keys, k)
+		}
+		qsort(kv_keys)
+		for i := 0; i < len(vals); i++ {
+			if kv[kv_keys[len(vals)-1-i]] != vals[i] {
+				t.Errorf("[random set range] wrong value in range, expected %d, got %d", kv[kv_keys[i]], vals[i])
+			}
+		}
+	}
+}
+
+/* moved to draft
+Test result:
+
+--- FAIL: TestRandomSetWalkDel (0.05s)
+        complex_test.go:211: [random set walk del] wrong number of steps, expected 10000, got 4824
+FAIL
+exit status 1
+FAIL    github.com/logrusorgru/ebony    0.189s
+
+func TestRandomSetWalkDel(t *testing.T) {
+	tr := New()
+	kv := make(map[uint]int64)
+	for i := 0; i < COUNT; i++ {
+		k := uint(rand.Int63n(time.Now().Unix()))
+		v := rand.Int63n(time.Now().Unix())
+		tr.Set(k, v)
+		kv[k] = v
+		if uint(len(kv)) != tr.Count() {
+			t.Errorf("[random set walk del] wrong count, expected %d, got %d", len(kv), tr.Count())
+		}
+	}
+	var pkey uint
+	counter := 0
+	wl := func(key uint, _ interface{}) error {
+		if key != 0 {
+			if pkey >= key {
+				return errors.New("walking out of order")
+			}
+		}
+		pkey = key
+		counter++
+		tr.Del(key)
+		return nil
+	}
+	if err := tr.Walk(MinUint, MaxUint, wl); err != nil {
+		t.Errorf("[random set walk del] unexpected walking error '%v'", err)
+	}
+	if counter != len(kv) {
+		t.Errorf("[random set walk del] wrong number of steps, expected %d, got %d", len(kv), counter)
+	}
+}
+*/
