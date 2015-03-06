@@ -2,16 +2,16 @@
 //
 // Usage notes
 //
-// A `nil` is the value. Use `Del()` to delete value. But if value doesn't exist
-// method `Get()` returns `nil`. You can to use `struct{}` as an emty value to
-// avoid confusions. `Walk()` doesn't support `Tree` manipulations, yet (`Set()`
-// and `Del()` ops.).
+// A nil is the value. Use Del() to delete value. But if value doesn't exist
+// method Get() returns nil. You can to use struct{} as an emty value to
+// avoid confusions. Walk() doesn't support Tree manipulations, yet (Set()
+// and Del() ops.).
 //
-// If you want to lookup the tree much more than change it, take a look
-// at LLRB (if memory usage are critical)
+//    If you want to lookup the tree much more than change it,
+//    take a look at LLRB (if memory usage are critical)
 //
-//     Read http://www.read.seas.harvard.edu/~kohler/notes/llrb.html
-//     Source https://github.com/petar/GoLLRB
+//    Read http://www.read.seas.harvard.edu/~kohler/notes/llrb.html
+//    Source https://github.com/petar/GoLLRB
 package ebony
 
 import (
@@ -437,7 +437,7 @@ func (t *Tree) Walk(from, to uint, wl Walker) error {
 // Range returns all values in given range if any.
 // O(logn+m), m = len(range), [b,e] order dependent of cpm(b, e)
 // Recursive. The required stack size is proportional to the height of the tree.
-// If there aren't values the result will be nil
+// If there aren't values the result will be nil.
 // To simulate GraterThen and LaterThen methods use the minimum possible and
 // maximum possible values of the index. For example:
 //
