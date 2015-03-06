@@ -10,6 +10,11 @@ Golang red-black tree with uint index, not thread safe
 
 [Nice visualization](http://www.cs.usfca.edu/~galles/visualization/RedBlack.html)
 
+### Types
+
+The tree configured to store values of type `interface{}` index type `uint`.
+If you want to use other types, switch to the branch called "typed".
+
 ### Methods
 
 | Method name | Time |
