@@ -292,9 +292,9 @@ func TestWalk(t *testing.T) {
 			t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
 		}
 		r13 := []pair{
-			pair{1, "y"},
-			pair{2, "z"},
-			pair{3, "m"},
+			{1, "y"},
+			{2, "z"},
+			{3, "m"},
 		}
 		for i := 0; i < len(vls) && i < len(r13); i++ {
 			if vls[i].Value != r13[i].Value {
@@ -314,9 +314,9 @@ func TestWalk(t *testing.T) {
 			t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
 		}
 		r13 := []pair{
-			pair{3, "m"},
-			pair{2, "z"},
-			pair{1, "y"},
+			{3, "m"},
+			{2, "z"},
+			{1, "y"},
 		}
 		for i := 0; i < len(vls) && i < len(r13); i++ {
 			if vls[i].Value != r13[i].Value {

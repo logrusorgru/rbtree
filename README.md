@@ -5,6 +5,7 @@ Ebony
 [![WTFPL License](https://img.shields.io/badge/license-wtfpl-blue.svg)](http://www.wtfpl.net/about/)
 [![Build Status](https://travis-ci.org/logrusorgru/ebony.svg)](https://travis-ci.org/logrusorgru/ebony)
 [![Coverage Status](https://coveralls.io/repos/logrusorgru/ebony/badge.svg?branch=master)](https://coveralls.io/r/logrusorgru/ebony?branch=master)
+[![GoReportCard](http://goreportcard.com/badge/logrusorgru/ebony)](http://goreportcard.com/report/logrusorgru/ebony)
 
 Golang red-black tree with uint index, not thread safe
 

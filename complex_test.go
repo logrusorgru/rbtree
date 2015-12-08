@@ -153,7 +153,7 @@ func TestRandomSetRange(t *testing.T) {
 		t.Errorf("[random set range] wrong length of range values, expected %d, got %d", len(kv), len(vals))
 	} else {
 		kv_keys := make([]uint, 0, len(kv))
-		for k, _ := range kv {
+		for k := range kv {
 			kv_keys = append(kv_keys, k)
 		}
 		qsort(kv_keys)
@@ -168,7 +168,7 @@ func TestRandomSetRange(t *testing.T) {
 		t.Errorf("[random set range] wrong length of range values, expected %d, got %d", len(kv), len(vals))
 	} else {
 		kv_keys := make([]uint, 0, len(kv))
-		for k, _ := range kv {
+		for k := range kv {
 			kv_keys = append(kv_keys, k)
 		}
 		qsort(kv_keys)
