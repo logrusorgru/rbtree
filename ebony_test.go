@@ -42,10 +42,13 @@ func TestSet(t *testing.T) {
 	switch v := tr.root.value.(type) {
 	case string:
 		if v != x {
-			t.Errorf("[set] wrong returned value, expected '%s', got '%s'", x, v)
+			t.Errorf(
+				"[set] wrong returned value, expected '%s', got '%s'", x, v)
 		}
 	default:
-		t.Errorf("[set] wrong type of returned value, expected 'string', got '%T'", v)
+		t.Errorf(
+			"[set] wrong type of returned value, expected 'string', got '%T'",
+			v)
 	}
 	if tr.count != 1 {
 		t.Errorf("[set] wrong count, expected 1, got %d", tr.count)
@@ -76,7 +79,9 @@ func TestGet(t *testing.T) {
 			t.Errorf("[get] wrong returned value, expected 'x', got '%s'", v)
 		}
 	default:
-		t.Errorf("[get] wrong type of returned value, expected 'string', got '%T'", v)
+		t.Errorf(
+			"[get] wrong type of returned value, expected 'string', got '%T'",
+			v)
 	}
 	if tr.count != 1 {
 		t.Errorf("[get] wrong count, expected 1, got %d", tr.count)
@@ -136,10 +141,13 @@ func TestMove(t *testing.T) {
 	switch v := val.(type) {
 	case string:
 		if v != x {
-			t.Errorf("[move] wrong returned value, expected '%s', got '%s'", x, v)
+			t.Errorf("[move] wrong returned value, expected '%s', got '%s'",
+				x, v)
 		}
 	default:
-		t.Errorf("[move] wrong type of returned value, expected 'string', got '%T'", v)
+		t.Errorf(
+			"[move] wrong type of returned value, expected 'string', got '%T'",
+			v)
 	}
 	if tr.count != 1 {
 		t.Errorf("[move] wrong count, expected 0, got %d", tr.count)
@@ -178,10 +186,14 @@ func TestMax(t *testing.T) {
 	switch v := val.(type) {
 	case string:
 		if v != max {
-			t.Errorf("[max] wrong returned value, expected '%s', got '%s'", max, v)
+			t.Errorf(
+				"[max] wrong returned value, expected '%s', got '%s'",
+				max, v)
 		}
 	default:
-		t.Errorf("[max] wrong type of returned value, expected 'string', got '%T'", v)
+		t.Errorf(
+			"[max] wrong type of returned value, expected 'string', got '%T'",
+			v)
 	}
 }
 
@@ -203,10 +215,69 @@ func TestMin(t *testing.T) {
 	switch v := val.(type) {
 	case string:
 		if v != min {
-			t.Errorf("[min] wrong returned value, expected '%s', got '%s'", min, v)
+			t.Errorf("[min] wrong returned value, expected '%s', got '%s'",
+				min, v)
 		}
 	default:
-		t.Errorf("[min] wrong type of returned value, expected 'string', got '%T'", v)
+		t.Errorf(
+			"[min] wrong type of returned value, expected 'string', got '%T'",
+			v)
+	}
+}
+
+func testRange13(tr *Tree, t *testing.T) {
+	vls := tr.Range(1, 3)
+	if len(vls) != 3 {
+		t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
+	}
+	r13 := []string{"y", "z", "m"}
+	for i := 0; i < len(vls) && i < len(r13); i++ {
+		if vls[i] != r13[i] {
+			t.Errorf("[range] wrong value, expected '%s', got '%s'",
+				r13[i], vls[i])
+		}
+	}
+}
+
+func testRange31(tr *Tree, t *testing.T) {
+	vls := tr.Range(3, 1)
+	if len(vls) != 3 {
+		t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
+	}
+	r13 := []string{"m", "z", "y"}
+	for i := 0; i < len(vls) && i < len(r13); i++ {
+		if vls[i] != r13[i] {
+			t.Errorf("[range] wrong value, expected '%s', got '%s'",
+				r13[i], vls[i])
+		}
+	}
+}
+
+func testRange19(tr *Tree, t *testing.T) {
+	vls := tr.Range(1, 9)
+	if len(vls) != 4 {
+		t.Errorf("[range] wrong range length, expected 4, got %d", len(vls))
+	}
+	r13 := []string{"y", "z", "m", "n"}
+	for i := 0; i < len(vls) && i < len(r13); i++ {
+		if vls[i] != r13[i] {
+			t.Errorf("[range] wrong value, expected '%s', got '%s'",
+				r13[i], vls[i])
+		}
+	}
+}
+
+func testRange40(tr *Tree, t *testing.T) {
+	vls := tr.Range(4, 0)
+	if len(vls) != 4 {
+		t.Errorf("[range] wrong range length, expected 4, got %d", len(vls))
+	}
+	r13 := []string{"n", "m", "z", "y"}
+	for i := 0; i < len(vls) && i < len(r13); i++ {
+		if vls[i] != r13[i] {
+			t.Errorf("[range] wrong value, expected '%s', got '%s'",
+				r13[i], vls[i])
+		}
 	}
 }
 
@@ -217,54 +288,111 @@ func TestRange(t *testing.T) {
 	tr.Set(2, "z")
 	tr.Set(3, "m")
 	tr.Set(4, "n")
-	{
-		vls := tr.Range(1, 3)
-		if len(vls) != 3 {
-			t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
-		}
-		r13 := []string{"y", "z", "m"}
-		for i := 0; i < len(vls) && i < len(r13); i++ {
-			if vls[i] != r13[i] {
-				t.Errorf("[range] wrong value, expected '%s', got '%s'", r13[i], vls[i])
-			}
-		}
-	}
-	{
-		vls := tr.Range(3, 1)
-		if len(vls) != 3 {
-			t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
-		}
-		r13 := []string{"m", "z", "y"}
-		for i := 0; i < len(vls) && i < len(r13); i++ {
-			if vls[i] != r13[i] {
-				t.Errorf("[range] wrong value, expected '%s', got '%s'", r13[i], vls[i])
-			}
-		}
-	}
-	{
-		vls := tr.Range(1, 9)
-		if len(vls) != 4 {
-			t.Errorf("[range] wrong range length, expected 4, got %d", len(vls))
-		}
-		r13 := []string{"y", "z", "m", "n"}
-		for i := 0; i < len(vls) && i < len(r13); i++ {
-			if vls[i] != r13[i] {
-				t.Errorf("[range] wrong value, expected '%s', got '%s'", r13[i], vls[i])
-			}
-		}
-	}
+	testRange13(tr, t)
+	testRange31(tr, t)
+	testRange19(tr, t)
 	tr.Del(0)
-	{
-		vls := tr.Range(4, 0)
-		if len(vls) != 4 {
-			t.Errorf("[range] wrong range length, expected 4, got %d", len(vls))
+	testRange40(tr, t)
+}
+
+type pair struct {
+	Key   uint
+	Value interface{}
+}
+
+func testWalk13(tr *Tree, t *testing.T) {
+	vls := []pair{}
+	wl := func(key uint, value interface{}) error {
+		vls = append(vls, pair{key, value})
+		return nil
+	}
+	if err := tr.Walk(1, 3, wl); err != nil {
+		t.Errorf("[range] unexpected walking error '%v'", err)
+	}
+	if len(vls) != 3 {
+		t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
+	}
+	r13 := []pair{
+		{1, "y"},
+		{2, "z"},
+		{3, "m"},
+	}
+	for i := 0; i < len(vls) && i < len(r13); i++ {
+		if vls[i].Value != r13[i].Value {
+			t.Errorf("[range] wrong value, expected '%s', got '%s'",
+				r13[i].Value, vls[i].Value)
 		}
-		r13 := []string{"n", "m", "z", "y"}
-		for i := 0; i < len(vls) && i < len(r13); i++ {
-			if vls[i] != r13[i] {
-				t.Errorf("[range] wrong value, expected '%s', got '%s'", r13[i], vls[i])
-			}
+		if vls[i].Key != r13[i].Key {
+			t.Errorf("[range] wrong key, expected '%d', got '%d'",
+				r13[i].Key, vls[i].Key)
 		}
+	}
+}
+
+func testWalk31(tr *Tree, t *testing.T) {
+	var vls []pair
+	wl := func(key uint, value interface{}) error {
+		vls = append(vls, pair{key, value})
+		return nil
+	}
+	if err := tr.Walk(3, 1, wl); err != nil {
+		t.Errorf("[range] unexpected walking error '%v'", err)
+	}
+	if len(vls) != 3 {
+		t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
+	}
+	r13 := []pair{
+		{3, "m"},
+		{2, "z"},
+		{1, "y"},
+	}
+	for i := 0; i < len(vls) && i < len(r13); i++ {
+		if vls[i].Value != r13[i].Value {
+			t.Errorf("[range] wrong value, expected '%s', got '%s'", r13[i].Value, vls[i].Value)
+		}
+		if vls[i].Key != r13[i].Key {
+			t.Errorf("[range] wrong key, expected '%d', got '%d'", r13[i].Key, vls[i].Key)
+		}
+	}
+}
+
+func testWalk13s(tr *Tree, t *testing.T) {
+	vls := []interface{}{}
+	wl := func(_ uint, value interface{}) error {
+		if value == "z" {
+			return Stop
+		}
+		vls = append(vls, value)
+		return nil
+	}
+	if err := tr.Walk(1, 3, wl); err != nil && err != Stop {
+		t.Errorf("[range] unexpected walking error '%v'", err)
+	}
+	if len(vls) != 1 {
+		t.Errorf("[range] wrong walking result length, expected 1, got %d", len(vls))
+	}
+	if vls[0] != "y" {
+		t.Errorf("[range] wrong walking result, expected [y], got %v", vls)
+	}
+}
+
+func testWalk31s(tr *Tree, t *testing.T) {
+	vls := []interface{}{}
+	wl := func(_ uint, value interface{}) error {
+		if value == "z" {
+			return Stop
+		}
+		vls = append(vls, value)
+		return nil
+	}
+	if err := tr.Walk(3, 1, wl); err != nil && err != Stop {
+		t.Errorf("[range] unexpected walking error '%v'", err)
+	}
+	if len(vls) != 1 {
+		t.Errorf("[range] wrong walking result length, expected 1, got %d", len(vls))
+	}
+	if vls[0] != "m" {
+		t.Errorf("[range] wrong walking result, expected [m], got %v", vls)
 	}
 }
 
@@ -275,94 +403,8 @@ func TestWalk(t *testing.T) {
 	tr.Set(2, "z")
 	tr.Set(3, "m")
 	tr.Set(4, "n")
-	type pair struct {
-		Key   uint
-		Value interface{}
-	}
-	vls := []pair{}
-	wl := func(key uint, value interface{}) error {
-		vls = append(vls, pair{key, value})
-		return nil
-	}
-	{
-		if err := tr.Walk(1, 3, wl); err != nil {
-			t.Errorf("[range] unexpected walking error '%v'", err)
-		}
-		if len(vls) != 3 {
-			t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
-		}
-		r13 := []pair{
-			{1, "y"},
-			{2, "z"},
-			{3, "m"},
-		}
-		for i := 0; i < len(vls) && i < len(r13); i++ {
-			if vls[i].Value != r13[i].Value {
-				t.Errorf("[range] wrong value, expected '%s', got '%s'", r13[i].Value, vls[i].Value)
-			}
-			if vls[i].Key != r13[i].Key {
-				t.Errorf("[range] wrong key, expected '%d', got '%d'", r13[i].Key, vls[i].Key)
-			}
-		}
-	}
-	{
-		vls = nil
-		if err := tr.Walk(3, 1, wl); err != nil {
-			t.Errorf("[range] unexpected walking error '%v'", err)
-		}
-		if len(vls) != 3 {
-			t.Errorf("[range] wrong range length, expected 3, got %d", len(vls))
-		}
-		r13 := []pair{
-			{3, "m"},
-			{2, "z"},
-			{1, "y"},
-		}
-		for i := 0; i < len(vls) && i < len(r13); i++ {
-			if vls[i].Value != r13[i].Value {
-				t.Errorf("[range] wrong value, expected '%s', got '%s'", r13[i].Value, vls[i].Value)
-			}
-			if vls[i].Key != r13[i].Key {
-				t.Errorf("[range] wrong key, expected '%d', got '%d'", r13[i].Key, vls[i].Key)
-			}
-		}
-	}
-	{
-		vls := []interface{}{}
-		wl = func(_ uint, value interface{}) error {
-			if value == "z" {
-				return Stop
-			}
-			vls = append(vls, value)
-			return nil
-		}
-		if err := tr.Walk(1, 3, wl); err != nil && err != Stop {
-			t.Errorf("[range] unexpected walking error '%v'", err)
-		}
-		if len(vls) != 1 {
-			t.Errorf("[range] wrong walking result length, expected 1, got %d", len(vls))
-		}
-		if vls[0] != "y" {
-			t.Errorf("[range] wrong walking result, expected [y], got %v", vls)
-		}
-	}
-	{
-		vls := []interface{}{}
-		wl = func(_ uint, value interface{}) error {
-			if value == "z" {
-				return Stop
-			}
-			vls = append(vls, value)
-			return nil
-		}
-		if err := tr.Walk(3, 1, wl); err != nil && err != Stop {
-			t.Errorf("[range] unexpected walking error '%v'", err)
-		}
-		if len(vls) != 1 {
-			t.Errorf("[range] wrong walking result length, expected 1, got %d", len(vls))
-		}
-		if vls[0] != "m" {
-			t.Errorf("[range] wrong walking result, expected [m], got %v", vls)
-		}
-	}
+	testWalk13(tr, t)
+	testWalk31(tr, t)
+	testWalk13s(tr, t)
+	testWalk31s(tr, t)
 }
