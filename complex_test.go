@@ -1,7 +1,6 @@
 package ebony
 
 import (
-	"errors"
 	"fmt"
 	"math/rand"
 	"testing"
@@ -24,22 +23,26 @@ func TestRandomSetGetDel(t *testing.T) {
 		tr.Set(k, v)
 		kv[k] = v
 		if uint(len(kv)) != tr.Count() {
-			t.Errorf("[random set get] wrong count, expected %d, got %d", len(kv), tr.Count())
+			t.Errorf("[random set get] wrong count, expected %d, got %d",
+				len(kv), tr.Count())
 		}
 	}
 	for k := range kv {
 		switch v := tr.Get(k).(type) {
 		case int64:
 			if v != kv[k] {
-				t.Errorf("[random set get] wrong returned value, expected %d, got %d", kv[k], v)
+				t.Errorf("[random set get] wrong returned value,"+
+					" expected %d, got %d", kv[k], v)
 			}
 		default:
-			t.Errorf("[random set get] wrong type of returned value, expected 'int64', got '%T'", v)
+			t.Errorf("[random set get] wrong type of returned value,"+
+				" expected 'int64', got '%T'", v)
 		}
 		delete(kv, k)
 		tr.Del(k)
 		if uint(len(kv)) != tr.Count() {
-			t.Errorf("[random set get] wrong count, expected %d, got %d", len(kv), tr.Count())
+			t.Errorf("[random set get] wrong count, expected %d, got %d",
+				len(kv), tr.Count())
 		}
 	}
 }
@@ -52,18 +55,23 @@ func TestCritIndex(t *testing.T) {
 	switch v := tr.Get(MaxUint).(type) {
 	case string:
 		if v != max {
-			t.Errorf("[crit index] wrong returned value, expected '%s', got '%s'", max, v)
+			t.Errorf(
+				"[crit index] wrong returned value, expected '%s', got '%s'",
+				max, v)
 		}
 	default:
-		t.Errorf("[crit index] wrong type of returned value, expected 'string', got '%T'", v)
+		t.Errorf("[crit index] wrong type of returned value,"+
+			" expected 'string', got '%T'", v)
 	}
 	switch v := tr.Get(MinUint).(type) {
 	case string:
 		if v != min {
-			t.Errorf("[crit index] wrong returned value, expected '%s', got '%s'", min, v)
+			t.Errorf("[crit index] wrong returned value,"+
+				" expected '%s', got '%s'", min, v)
 		}
 	default:
-		t.Errorf("[crit index] wrong type of returned value, expected 'string', got '%T'", v)
+		t.Errorf("[crit index] wrong type of returned value,"+
+			" expected 'string', got '%T'", v)
 	}
 }
 
@@ -88,7 +96,8 @@ func TestOneSizeRange(t *testing.T) {
 	tr.Set(1, "b")
 	tr.Set(2, "c")
 	if vls := tr.Range(1, 1); len(vls) != 1 {
-		t.Errorf("[one size range] wrong length of values, expected 1, got %d", len(vls))
+		t.Errorf("[one size range] wrong length of values, expected 1, got %d",
+			len(vls))
 	} else if len(vls) == 1 && vls[0] != "b" {
 		t.Errorf("[one size range] wrong value, expected 'b', got '%s'", vls[0])
 	}
@@ -145,36 +154,41 @@ func TestRandomSetRange(t *testing.T) {
 		tr.Set(k, v)
 		kv[k] = v
 		if uint(len(kv)) != tr.Count() {
-			t.Errorf("[random set range] wrong count, expected %d, got %d", len(kv), tr.Count())
+			t.Errorf("[random set range] wrong count, expected %d, got %d",
+				len(kv), tr.Count())
 		}
 	}
 	// direct order
 	if vals := tr.Range(MinUint, MaxUint); len(vals) != len(kv) {
-		t.Errorf("[random set range] wrong length of range values, expected %d, got %d", len(kv), len(vals))
+		t.Errorf("[random set range] wrong length of range values,"+
+			" expected %d, got %d", len(kv), len(vals))
 	} else {
-		kv_keys := make([]uint, 0, len(kv))
+		kvKeys := make([]uint, 0, len(kv))
 		for k := range kv {
-			kv_keys = append(kv_keys, k)
+			kvKeys = append(kvKeys, k)
 		}
-		qsort(kv_keys)
+		qsort(kvKeys)
 		for i := 0; i < len(vals); i++ {
-			if kv[kv_keys[i]] != vals[i] {
-				t.Errorf("[random set range] wrong value in range, expected %d, got %d", kv[kv_keys[i]], vals[i])
+			if kv[kvKeys[i]] != vals[i] {
+				t.Errorf("[random set range] wrong value in range,"+
+					" expected %d, got %d", kv[kvKeys[i]], vals[i])
 			}
 		}
 	}
 	// reverse order
 	if vals := tr.Range(MaxUint, MinUint); len(vals) != len(kv) {
-		t.Errorf("[random set range] wrong length of range values, expected %d, got %d", len(kv), len(vals))
+		t.Errorf("[random set range] wrong length of range values,"+
+			" expected %d, got %d", len(kv), len(vals))
 	} else {
-		kv_keys := make([]uint, 0, len(kv))
+		kvKeys := make([]uint, 0, len(kv))
 		for k := range kv {
-			kv_keys = append(kv_keys, k)
+			kvKeys = append(kvKeys, k)
 		}
-		qsort(kv_keys)
+		qsort(kvKeys)
 		for i := 0; i < len(vals); i++ {
-			if kv[kv_keys[len(vals)-1-i]] != vals[i] {
-				t.Errorf("[random set range] wrong value in range, expected %d, got %d", kv[kv_keys[i]], vals[i])
+			if kv[kvKeys[len(vals)-1-i]] != vals[i] {
+				t.Errorf("[random set range] wrong value in range,"+
+					" expected %d, got %d", kv[kvKeys[i]], vals[i])
 			}
 		}
 	}
@@ -189,7 +203,8 @@ func TestRandomSetWalk(t *testing.T) {
 		tr.Set(k, v)
 		kv[k] = v
 		if uint(len(kv)) != tr.Count() {
-			t.Errorf("[random set walk] wrong count, expected %d, got %d", len(kv), tr.Count())
+			t.Errorf("[random set walk] wrong count, expected %d, got %d",
+				len(kv), tr.Count())
 		}
 	}
 	var count int
@@ -197,24 +212,29 @@ func TestRandomSetWalk(t *testing.T) {
 		count++
 		val := tr.Get(key)
 		if val != value {
-			return errors.New(fmt.Sprintf("wrong value, expected %d, got %d", value, val))
+			return fmt.Errorf("wrong value, expected %d, got %d", value, val)
 		}
 		return nil
 	}
 	// direct order
 	if err := tr.Walk(MinUint, MaxUint, wl); err != nil {
-		t.Errorf("[random set walk] direct order: unexpected walking error, '%v'", err)
+		t.Errorf("[random set walk] direct order:"+
+			" unexpected walking error, '%v'", err)
 	}
 	if count != len(kv) {
-		t.Errorf("[random set walk] direct order: wrong walking count, expected, %d, got %d", len(kv), count)
+		t.Errorf("[random set walk] direct order: wrong walking count,"+
+			" expected, %d, got %d", len(kv), count)
 	}
 	// reverse order
 	count = 0
 	if err := tr.Walk(MaxUint, MinUint, wl); err != nil {
-		t.Errorf("[random set walk] reverse order: unexpected walking error, '%v'", err)
+		t.Errorf(
+			"[random set walk] reverse order: unexpected walking error, '%v'",
+			err)
 	}
 	if count != len(kv) {
-		t.Errorf("[random set walk] reverse order: wrong walking count, expected, %d, got %d", len(kv), count)
+		t.Errorf("[random set walk] reverse order: wrong walking count,"+
+			" expected, %d, got %d", len(kv), count)
 	}
 }
 

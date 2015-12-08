@@ -1,4 +1,5 @@
-// rb-tree with uint index, not thread safe
+// Package ebony is the red-black tree with
+// with uint index. It is not thread safe
 //
 // Usage notes
 //
@@ -39,7 +40,7 @@ func init() {
 	sentinel.left, sentinel.right = sentinel, sentinel
 }
 
-// Tree
+// Tree is the RB-tree
 type Tree struct {
 	root  *node
 	count uint
@@ -278,14 +279,14 @@ func (t *Tree) findNode(id uint) *node {
 	return sentinel
 }
 
-// create new RB-Tree
+// New creates the new RB-Tree
 func New() *Tree {
 	return &Tree{
 		root: sentinel,
 	}
 }
 
-// Set, silent O(logn). This will overwrite the existing value.
+// Set the value. Silent O(logn). This will overwrite the existing value.
 // To simulate SetNx() method use:
 //
 //    if !tr.Exist(key) {
@@ -297,7 +298,7 @@ func (t *Tree) Set(id uint, value interface{}) {
 	t.insertNode(id, value)
 }
 
-// Del, silent O(logn)
+// Del deletes the value. Silent O(logn)
 func (t *Tree) Del(id uint) {
 	t.deleteNode(t.findNode(id))
 }
@@ -317,7 +318,8 @@ func (t *Tree) Count() uint {
 	return t.count
 }
 
-// Move, silent, changes index of value O(2logn)
+// Move moves the value from one index to another. Silent.
+// It just changes index of value O(2logn)
 func (t *Tree) Move(oid, nid uint) {
 	if n := t.findNode(oid); n != sentinel {
 		t.insertNode(nid, n.value)
@@ -325,8 +327,8 @@ func (t *Tree) Move(oid, nid uint) {
 	}
 }
 
-// Flush the tree O(1)
-func (t *Tree) Flush() *Tree {
+// Empty makes the tree empty O(1)
+func (t *Tree) Empty() *Tree {
 	t.root = sentinel
 	t.count = 0
 	runtime.GC()
@@ -351,16 +353,16 @@ func (t *Tree) Min() (uint, interface{}) {
 	return current.id, current.value
 }
 
-// walker function
+// Walker is a walker function type
 type Walker func(key uint, value interface{}) error
 
-// error for stop walking
-var Stop = errors.New("stop a walking")
+// ErrStop is the error for stop walking
+var ErrStop = errors.New("stop a walking")
 
-func (n *node) walk_left(from, to uint, wl Walker) error {
+func (n *node) walkLeft(from, to uint, wl Walker) error {
 	if n.id > from {
 		if n.left != sentinel {
-			if err := n.left.walk_left(from, to, wl); err != nil {
+			if err := n.left.walkLeft(from, to, wl); err != nil {
 				return err
 			}
 		}
@@ -372,7 +374,7 @@ func (n *node) walk_left(from, to uint, wl Walker) error {
 	}
 	if n.id < to {
 		if n.right != sentinel {
-			if err := n.right.walk_left(from, to, wl); err != nil {
+			if err := n.right.walkLeft(from, to, wl); err != nil {
 				return err
 			}
 		}
@@ -380,10 +382,10 @@ func (n *node) walk_left(from, to uint, wl Walker) error {
 	return nil
 }
 
-func (n *node) walk_right(from, to uint, wl Walker) error {
+func (n *node) walkRight(from, to uint, wl Walker) error {
 	if n.id < from {
 		if n.right != sentinel {
-			if err := n.right.walk_right(from, to, wl); err != nil {
+			if err := n.right.walkRight(from, to, wl); err != nil {
 				return err
 			}
 		}
@@ -395,7 +397,7 @@ func (n *node) walk_right(from, to uint, wl Walker) error {
 	}
 	if n.id > to {
 		if n.left != sentinel {
-			if err := n.left.walk_right(from, to, wl); err != nil {
+			if err := n.left.walkRight(from, to, wl); err != nil {
 				return err
 			}
 		}
@@ -403,11 +405,11 @@ func (n *node) walk_right(from, to uint, wl Walker) error {
 	return nil
 }
 
-// Walking on tree.
+// Walk perfomes walking on tree.
 // You can to use any error to stop a walking.
-// Standart Stop error provided, for example:
+// Standart ErrStop error provided, for example:
 //
-//    if err := tr.Walk(0, 500, myWalker); err != nil && err != ebony.Stop {
+//    if err := tr.Walk(0, 500, myWalker); err != nil && err != ebony.ErrStop {
 //        log.Println(err) // real error
 //    }
 //
@@ -429,9 +431,9 @@ func (t *Tree) Walk(from, to uint, wl Walker) error {
 		}
 		return nil
 	} else if from < to {
-		return t.root.walk_left(from, to, wl)
+		return t.root.walkLeft(from, to, wl)
 	} // else if to < from
-	return t.root.walk_right(from, to, wl)
+	return t.root.walkRight(from, to, wl)
 }
 
 // Range returns all values in given range if any.

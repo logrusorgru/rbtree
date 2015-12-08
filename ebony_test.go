@@ -154,17 +154,17 @@ func TestMove(t *testing.T) {
 	}
 }
 
-func TestFlush(t *testing.T) {
+func TestEmpty(t *testing.T) {
 	tr := New()
 	tr.Set(0, "x")
 	tr.Set(1, "y")
 	tr.Set(2, "z")
-	tr.Flush()
+	tr.Empty()
 	if tr.count != 0 {
-		t.Error("[flush] count != 0")
+		t.Error("[empty] count != 0")
 	}
 	if tr.root != sentinel {
-		t.Error("[flush] root != sentinel")
+		t.Error("[empty] root != sentinel")
 	}
 }
 
@@ -360,12 +360,12 @@ func testWalk13s(tr *Tree, t *testing.T) {
 	vls := []interface{}{}
 	wl := func(_ uint, value interface{}) error {
 		if value == "z" {
-			return Stop
+			return ErrStop
 		}
 		vls = append(vls, value)
 		return nil
 	}
-	if err := tr.Walk(1, 3, wl); err != nil && err != Stop {
+	if err := tr.Walk(1, 3, wl); err != nil && err != ErrStop {
 		t.Errorf("[range] unexpected walking error '%v'", err)
 	}
 	if len(vls) != 1 {
@@ -380,12 +380,12 @@ func testWalk31s(tr *Tree, t *testing.T) {
 	vls := []interface{}{}
 	wl := func(_ uint, value interface{}) error {
 		if value == "z" {
-			return Stop
+			return ErrStop
 		}
 		vls = append(vls, value)
 		return nil
 	}
-	if err := tr.Walk(3, 1, wl); err != nil && err != Stop {
+	if err := tr.Walk(3, 1, wl); err != nil && err != ErrStop {
 		t.Errorf("[range] unexpected walking error '%v'", err)
 	}
 	if len(vls) != 1 {

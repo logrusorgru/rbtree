@@ -28,7 +28,7 @@ If you want to use other types, switch to the branch called "typed".
 | Move  | O(2log*n*) |
 | Max   | O(log*n*) |
 | Min   | O(log*n*) |
-| Flush | O(1) |
+| Empty | O(1) |
 | Walk  |  -   |
 | Range |  -   |
 
@@ -120,8 +120,8 @@ func main() {
 	// max
 	fmt.Println(tr.Max())
 
-	// flush
-	tr.Flush()
+	// empty
+	tr.Empty()
 	fmt.Println(tr.Count())
 	fmt.Println(tr.Min())
 	fmt.Println(tr.Max())

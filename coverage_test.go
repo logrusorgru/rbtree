@@ -2,7 +2,6 @@
 package ebony
 
 import (
-	"errors"
 	"fmt"
 	"testing"
 )
@@ -27,9 +26,8 @@ func TestNilWalk(t *testing.T) {
 	tr.Set(3, "m")
 	tr.Set(4, "n")
 	wl := func(key uint, value interface{}) error {
-		return errors.New(
-			fmt.Sprintf("[nil walk] synthetic error, you should not see it, key %d, value '%v'", key, value),
-		)
+		return fmt.Errorf("[nil walk] synthetic error, you should not see it,"+
+			" key %d, value '%v'", key, value)
 	}
 	if err := tr.Walk(5, 10, wl); err != nil {
 		t.Errorf("[nil walk] unexpected error '%v'", err)
@@ -47,9 +45,8 @@ func TestOneNilWalk(t *testing.T) {
 	tr.Set(3, "m")
 	tr.Set(4, "n")
 	wl := func(key uint, value interface{}) error {
-		return errors.New(
-			fmt.Sprintf("[nil walk] synthetic error, you should not see it, key %d, value '%v'", key, value),
-		)
+		return fmt.Errorf("[nil walk] synthetic error, you should not see it,"+
+			" key %d, value '%v'", key, value)
 	}
 	if err := tr.Walk(10, 10, wl); err != nil {
 		t.Errorf("[nil walk] unexpected error '%v'", err)
@@ -62,6 +59,7 @@ func TestDelNil(t *testing.T) {
 	tr.Set(0, x)
 	tr.Del(1)
 	if tr.count != 1 {
-		t.Errorf("[del nil] wrong count after del, expected 1, got %d", tr.count)
+		t.Errorf("[del nil] wrong count after del, expected 1, got %d",
+			tr.count)
 	}
 }

@@ -83,11 +83,11 @@ func ExampleTree_Max() {
 	// 1 hi
 }
 
-func ExampleTree_Flush() {
+func ExampleTree_Empty() {
 	tr := New()
 	tr.Set(0, "hello")
 	tr.Set(1, "hi")
-	tr.Flush()
+	tr.Empty()
 	fmt.Println(tr.Count())
 	// Output:
 	// 0
