@@ -1,41 +1,54 @@
 //
-// Copyright (c) 2015 Konstantin Ivanov <kostyarin.ivanov@gmail.com>.
+// Copyright (c) 2022 Konstantin Ivanov <kostyarin.ivanov@gmail.com>.
 // All rights reserved. This program is free software. It comes without
 // any warranty, to the extent permitted by applicable law. You can
-// redistribute it and/or modify it under the terms of the Do What
-// The Fuck You Want To Public License, Version 2, as published by
-// Sam Hocevar. See LICENSE file for more details or see below.
+// redistribute it and/or modify it under the terms of the Unlicense.
+// See LICENSE file for more details or see below.
 //
 
 //
-//        DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-//                    Version 2, December 2004
+// This is free and unencumbered software released into the public domain.
 //
-// Copyright (C) 2004 Sam Hocevar <sam@hocevar.net>
+// Anyone is free to copy, modify, publish, use, compile, sell, or
+// distribute this software, either in source code form or as a compiled
+// binary, for any purpose, commercial or non-commercial, and by any
+// means.
 //
-// Everyone is permitted to copy and distribute verbatim or modified
-// copies of this license document, and changing it is allowed as long
-// as the name is changed.
+// In jurisdictions that recognize copyright laws, the author or authors
+// of this software dedicate any and all copyright interest in the
+// software to the public domain. We make this dedication for the benefit
+// of the public at large and to the detriment of our heirs and
+// successors. We intend this dedication to be an overt act of
+// relinquishment in perpetuity of all present and future rights to this
+// software under copyright law.
 //
-//            DO WHAT THE FUCK YOU WANT TO PUBLIC LICENSE
-//   TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+// EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+// IN NO EVENT SHALL THE AUTHORS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+// OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+// ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+// OTHER DEALINGS IN THE SOFTWARE.
 //
-//  0. You just DO WHAT THE FUCK YOU WANT TO.
+// For more information, please refer to <http://unlicense.org/>
 //
 
-package ebony
+package rbtree
 
-import "fmt"
+import (
+	"fmt"
+	"math"
+)
 
 func ExampleNew() {
-	tr := New()
+	var tr = New[int, string]()
 	fmt.Printf("%T", tr)
 	// Output:
-	// *ebony.Tree
+	// *rbtree.Tree[int,string]
 }
 
 func ExampleTree_Set() {
-	tr := New()
+	var tr = New[int, string]()
 	tr.Set(0, "hello")
 	fmt.Println(tr.Get(0))
 	// Output:
@@ -43,38 +56,38 @@ func ExampleTree_Set() {
 }
 
 func ExampleTree_Del() {
-	tr := New()
+	var tr = New[int, string]()
 	tr.Set(0, "hello")
 	tr.Del(0)
-	fmt.Println(tr.Exist(0))
+	fmt.Println(tr.IsExist(0))
 	// Output:
 	// false
 }
 
 func ExampleTree_Get() {
-	tr := New()
+	var tr = New[int, string]()
 	tr.Set(0, "hello")
 	fmt.Println(tr.Get(0))
 	// Output:
 	// hello
 }
 
-func ExampleTree_Exist() {
-	tr := New()
+func ExampleTree_IsExist() {
+	var tr = New[int, string]()
 	tr.Set(0, "hello")
-	fmt.Println(tr.Exist(0))
+	fmt.Println(tr.IsExist(0))
 	// Output:
 	// true
 }
 
-func ExampleTree_Count() {
-	tr := New()
+func ExampleTree_Len() {
+	var tr = New[int, string]()
 	tr.Set(0, "hello")
-	fmt.Println(tr.Count())
+	fmt.Println(tr.Len())
 	tr.Set(0, "hello")
-	fmt.Println(tr.Count())
+	fmt.Println(tr.Len())
 	tr.Set(1, "hi")
-	fmt.Println(tr.Count())
+	fmt.Println(tr.Len())
 	// Output:
 	// 1
 	// 1
@@ -82,7 +95,7 @@ func ExampleTree_Count() {
 }
 
 func ExampleTree_Move() {
-	tr := New()
+	var tr = New[int, string]()
 	tr.Set(0, "hello")
 	tr.Move(0, 1)
 	fmt.Println(tr.Get(1))
@@ -91,7 +104,7 @@ func ExampleTree_Move() {
 }
 
 func ExampleTree_Min() {
-	tr := New()
+	var tr = New[int, string]()
 	tr.Set(0, "hello")
 	tr.Set(1, "hi")
 	fmt.Println(tr.Min())
@@ -100,7 +113,7 @@ func ExampleTree_Min() {
 }
 
 func ExampleTree_Max() {
-	tr := New()
+	var tr = New[int, string]()
 	tr.Set(0, "hello")
 	tr.Set(1, "hi")
 	fmt.Println(tr.Max())
@@ -109,39 +122,38 @@ func ExampleTree_Max() {
 }
 
 func ExampleTree_Empty() {
-	tr := New()
+	var tr = New[int, string]()
 	tr.Set(0, "hello")
 	tr.Set(1, "hi")
 	tr.Empty()
-	fmt.Println(tr.Count())
+	fmt.Println(tr.Len())
 	// Output:
 	// 0
 }
 
 func ExampleTree_Range() {
-	tr := New()
+	var tr = New[int, string]()
 	tr.Set(0, "zero")
 	tr.Set(1, "one")
 	tr.Set(2, "two")
 	tr.Set(3, "three")
-	fmt.Println(tr.Range(1, 2))
-	fmt.Println(tr.Range(2, 1))
+	fmt.Println(tr.Slice(1, 2))
+	fmt.Println(tr.Slice(2, 1))
 	// Output:
 	// [one two]
 	// [two one]
 }
 
 func ExampleTree_Walk() {
-	tr := New()
+	var tr = New[int, string]()
 	tr.Set(1, "one")
 	tr.Set(2, "two")
 	tr.Set(3, "three")
-	wl := func(key uint, value interface{}) error {
+	var walkFunc = func(key int, value string) error {
 		fmt.Println(key, "-", value)
 		return nil
 	}
-	const maxUint = ^uint(0)
-	tr.Walk(0, maxUint, wl)
+	tr.Walk(0, math.MaxInt, walkFunc)
 	// Output:
 	// 1 - one
 	// 2 - two

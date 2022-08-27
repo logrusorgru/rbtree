@@ -1,20 +1,19 @@
-Ebony
+rbtree
 =====
 
-[![GoDoc](https://godoc.org/github.com/logrusorgru/ebony?status.svg)](https://godoc.org/github.com/logrusorgru/ebony)
+[![GoDoc](https://godoc.org/github.com/logrusorgru/rbtree?status.svg)](https://godoc.org/github.com/logrusorgru/rbtree)
 [![WTFPL License](https://img.shields.io/badge/license-wtfpl-blue.svg)](http://www.wtfpl.net/about/)
-[![Build Status](https://travis-ci.org/logrusorgru/ebony.svg)](https://travis-ci.org/logrusorgru/ebony)
-[![Coverage Status](https://coveralls.io/repos/logrusorgru/ebony/badge.svg?branch=master)](https://coveralls.io/r/logrusorgru/ebony?branch=master)
-[![GoReportCard](http://goreportcard.com/badge/logrusorgru/ebony)](http://goreportcard.com/report/logrusorgru/ebony)
+[![Build Status](https://travis-ci.org/logrusorgru/rbtree.svg)](https://travis-ci.org/logrusorgru/rbtree)
+[![Coverage Status](https://coveralls.io/repos/logrusorgru/rbtree/badge.svg?branch=master)](https://coveralls.io/r/logrusorgru/rbtree?branch=master)
+[![GoReportCard](http://goreportcard.com/badge/logrusorgru/rbtree)](http://goreportcard.com/report/logrusorgru/rbtree)
 
-Golang red-black tree with uint index, not thread safe
+Golang red-black tree.
 
 [Nice visualization](http://www.cs.usfca.edu/~galles/visualization/RedBlack.html)
 
 ### Types
 
-The tree configured to store values of type `interface{}` index type `uint`.
-If you want to use other types, switch to the branch called "typed".
+It uses a comparable type as a key and any type as a value.
 
 ### Methods
 
@@ -36,11 +35,12 @@ If you want to use other types, switch to the branch called "typed".
 
 O(*n*&times;node),
 
+where
 ```go
-node := 3*sizeof(uintptr) +
-          sizeof(uint) +
+node = 3*sizeof(uintptr) +
+          sizeof(Key) +
           sizeof(bool) +
-          sizeof(interface{}) // data
+          sizeof(Value) // data
 ```
 
 ### Install
@@ -48,13 +48,13 @@ node := 3*sizeof(uintptr) +
 Get or update
 
 ```bash
-go get github.com/logrusorgru/ebony
+go get github.com/logrusorgru/rbtree
 ```
 
 Test
 
 ```bash
-cd $GOPATH/src/github.com/logrusorgru/ebony
+cd $GOPATH/src/github.com/logrusorgru/rbtree
 go test
 ```
 
@@ -63,13 +63,13 @@ Run benchmark
 _expensive_
 
 ```bash
-cd $GOPATH/src/github.com/logrusorgru/ebony
+cd $GOPATH/src/github.com/logrusorgru/rbtree
 go test -test.bench .
 ```
 _limited_
 
 ```bash
-cd $GOPATH/src/github.com/logrusorgru/ebony
+cd $GOPATH/src/github.com/logrusorgru/rbtree
 go test -test.benchtime=0.1s -test.bench .
 ```
 
@@ -80,19 +80,20 @@ package main
 
 import (
 	"fmt"
-	"github.com/logrusorgru/ebony"
+
+	"github.com/logrusorgru/rbtree"
 )
 
 func main() {
 	// create new red-black tree
-	tr := ebony.New()
+	tr := rbtree.New()
 
 	// append value to tree
 	tr.Set(0, "zero")
 	tr.Set(12, "some value")
 	var t uint = 98
 	tr.Set(t, "don't forget about uint indexing")
-	tr.Set(199, "ebony distributed under WTFPL feel free to fork it")
+	tr.Set(199, "rbtree distributed under WTFPL feel free to fork it")
 	tr.Set(2, "trash")
 
 	// delete value from tree
@@ -129,20 +130,16 @@ func main() {
 }
 ```
 
-### Usage Notes
+### See also
 
-A `nil` is the value. Use `Del()` to delete value. But if value doesn't exist
-method `Get()` returns `nil`. You can to use `struct{}` as an emty value to
-avoid confusions. `Walk()` doesn't support `Tree` manipulations, yet (`Set()`
-and `Del()` ops.). See [godoc](https://godoc.org/github.com/logrusorgru/ebony)
-for any details. If you want to lookup the tree much more than change it,
+If you want to lookup the tree much more than change it,
 take a look at LLRB (if memory usage are critical)
 ([read](http://www.read.seas.harvard.edu/~kohler/notes/llrb.html) |
 [source](https://github.com/petar/GoLLRB))
 
-### Licensing
+## Licensing
 
-Copyright &copy; 2015 Konstantin Ivanov <kostyarin.ivanov@gmail.com>  
-This work is free. You can redistribute it and/or modify it under the
-terms of the Do What The Fuck You Want To Public License, Version 2,
-as published by Sam Hocevar. See the LICENSE file for more details.
+Copyright © 2016-2022 Konstantin Ivanov. This work is free. It comes without any
+warranty, to the extent permitted by applicable law. You can redistribute it
+and/or modify it under the terms of the the Unlicense. See the LICENSE file for
+more details.
