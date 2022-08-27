@@ -1,6 +1,10 @@
 Changelog
 =========
 
+# v1.0
+
+Sat Aug 27 23:59:49 +03 2022
+
 1. rename package `ebony` -> `rbtree`
 2. change location from `github.com/logrusorgru/ebony` -> `github.com/logrusorgru/rbtree`
 3. change license from WTFPL to Unlicense
