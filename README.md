@@ -3,8 +3,8 @@ rbtree
 
 [![go.dev reference](https://img.shields.io/badge/go.dev-reference-007d9c?logo=go&logoColor=white)](https://pkg.go.dev/github.com/logrusorgru/rbtree?utm_source=godoc)
 [![Unlicense](https://img.shields.io/badge/license-unlicense-blue.svg)](http://unlicense.org/)
-[![Build Status](https://travis-ci.org/logrusorgru/rbtree.svg)](https://travis-ci.org/logrusorgru/rbtree)
-[![Coverage Status](https://coveralls.io/repos/logrusorgru/rbtree/badge.svg?branch=master)](https://coveralls.io/r/logrusorgru/rbtree?branch=master)
+[![Build Status](https://github.com/logrusorgru/rbtree/workflows/test%20and%20build/badge.svg)](https://github.com/logrusorgru/rbtree/actions?workflow=test%20and%20build)
+[![Coverage Status](https://coveralls.io/repos/github/logrusorgru/rbtree/badge.svg?branch=master)](https://coveralls.io/github/logrusorgru/rbtree?branch=master)
 [![GoReportCard](http://goreportcard.com/badge/logrusorgru/rbtree)](http://goreportcard.com/report/logrusorgru/rbtree)
 
 Golang red-black tree.
