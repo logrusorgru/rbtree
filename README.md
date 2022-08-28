@@ -50,14 +50,13 @@ node = 3*sizeof(uintptr) +
 Get or update
 
 ```bash
-go get github.com/logrusorgru/rbtree
+go get -u github.com/logrusorgru/rbtree
 ```
 
 Test
 
 ```bash
-cd $GOPATH/src/github.com/logrusorgru/rbtree
-go test
+go test -cover -race github.com/logrusorgru/rbtree
 ```
 
 Run benchmark
@@ -65,14 +64,12 @@ Run benchmark
 _expensive_
 
 ```bash
-cd $GOPATH/src/github.com/logrusorgru/rbtree
-go test -test.bench .
+go test -test.bench . github.com/logrusorgru/rbtree
 ```
 _limited_
 
 ```bash
-cd $GOPATH/src/github.com/logrusorgru/rbtree
-go test -test.benchtime=0.1s -test.bench .
+go test -test.benchtime=0.1s -test.bench . github.com/logrusorgru/rbtree
 ```
 
 ### Usage
@@ -88,14 +85,14 @@ import (
 
 func main() {
 	// create new red-black tree
-	tr := rbtree.New()
+	var tr = rbtree.New[int, string]()
 
 	// append value to tree
 	tr.Set(0, "zero")
 	tr.Set(12, "some value")
-	var t uint = 98
-	tr.Set(t, "don't forget about uint indexing")
-	tr.Set(199, "rbtree distributed under WTFPL feel free to fork it")
+	var t int = 98
+	tr.Set(t, "don't forget about int indexing")
+	tr.Set(199, "rbtree distributed under Unlicense, feel free to fork it")
 	tr.Set(2, "trash")
 
 	// delete value from tree
@@ -106,16 +103,16 @@ func main() {
 	fmt.Println(tr.Get(t))
 
 	// check existence only
-	fmt.Println(tr.Exist(12))
-	fmt.Println(tr.Exist(590))
+	fmt.Println(tr.IsExist(12))
+	fmt.Println(tr.IsExist(590))
 
 	// get count
-	fmt.Println(tr.Count())
+	fmt.Println(tr.Len())
 
 	// change index of value
 	tr.Move(12, 13)
 	fmt.Println(tr.Get(13))
-	fmt.Println(tr.Exist(12))
+	fmt.Println(tr.IsExist(12))
 
 	// take min index and value
 	fmt.Println(tr.Min())
@@ -125,7 +122,7 @@ func main() {
 
 	// empty
 	tr.Empty()
-	fmt.Println(tr.Count())
+	fmt.Println(tr.Len())
 	fmt.Println(tr.Min())
 	fmt.Println(tr.Max())
 	fmt.Println(tr.Get(0))

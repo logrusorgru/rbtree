@@ -385,14 +385,7 @@ func New[Key constraints.Ordered, Value any]() *Tree[Key, Value] {
 	}
 }
 
-// Set the value. Silent O(logn). This will overwrite the existing value.
-// To simulate SetNx() method use:
-//
-//    if !tr.IsExist(key) {
-//        tr.Set(key, value)
-//    }
-//
-// Its complexity from O(logn) to O(2logn)
+// Set the value. O(logn). This will overwrite the existing value.
 func (t *Tree[Key, Value]) Set(key Key, value Value) (added bool) {
 	return t.insertNode(key, value, true)
 }
@@ -402,7 +395,7 @@ func (t *Tree[Key, Value]) SetNx(key Key, value Value) (added bool) {
 	return t.insertNode(key, value, false)
 }
 
-// Del deletes value by key. Silent O(logn). It returns false,
+// Del deletes value by key. O(logn). It returns false,
 // if key doesn't exits.
 func (t *Tree[Key, Value]) Del(key Key) (deleted bool) {
 	var node = t.findNode(key)
