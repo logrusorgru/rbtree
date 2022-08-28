@@ -17,19 +17,21 @@ It uses a comparable type as a key and any type as a value.
 
 ### Methods
 
-| Method name | Time |
-|:-----------:|:----:|
-| Set   | O(log*n*) |
-| Del   | O(log*n*) |
-| Get   | O(log*n*) |
-| Exist | O(log*n*) |
-| Count | O(1) |
-| Move  | O(2log*n*) |
-| Max   | O(log*n*) |
-| Min   | O(log*n*) |
-| Empty | O(1) |
-| Walk  |  -   |
-| Range |  -   |
+| Method name | Time   |
+|:-----------:|:------:|
+| Set     | O(log*n*)  |
+| SetNx   | O(log*n*)  |
+| Del     | O(log*n*)  |
+| Get     | O(log*n*)  |
+| GetEx   | O(log*n*)  |
+| IsExist | O(log*n*)  |
+| Len     | O(1)       |
+| Move    | O(2log*n*) |
+| Max     | O(log*n*)  |
+| Min     | O(log*n*)  |
+| Empty   | O(1)       |
+| Walk    | O(range)   |
+| Slice   | O(range)   |
 
 ### Memory usage
 

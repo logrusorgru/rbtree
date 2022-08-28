@@ -17,3 +17,5 @@ Sat Aug 27 23:59:49 +03 2022
 10. change `Range` -> `Slice`
 11. improve documentation
 12. rename `Count` -> `Len`
+13. add replies for some methods
+14. add methods SetNx, GetEx
