@@ -6,7 +6,7 @@ on:
     branches:
       - master
 
-name: run tests
+name: build
 jobs:
   # lint:
   #   runs-on: ubuntu-latest
