@@ -119,6 +119,15 @@ func TestTree(t *testing.T) {
 	assert.EqualValues(t, []string{z, y, x}, tr.Slice(5, 0))
 	assert.Nil(t, tr.Slice(90, 210))
 
+	assert.EqualValues(t, []int{1, 2, 3},
+		tr.SliceKeys(math.MinInt, math.MaxInt))
+	assert.EqualValues(t, []int{1}, tr.SliceKeys(1, 1))
+	assert.EqualValues(t, []int{1, 2}, tr.SliceKeys(1, 2))
+	assert.EqualValues(t, []int{1, 2, 3}, tr.SliceKeys(1, 3))
+	assert.EqualValues(t, []int{1, 2, 3}, tr.SliceKeys(1, 4))
+	assert.EqualValues(t, []int{3, 2, 1}, tr.SliceKeys(5, 0))
+	assert.Nil(t, tr.SliceKeys(90, 210))
+
 	type pair struct {
 		key   int
 		value string

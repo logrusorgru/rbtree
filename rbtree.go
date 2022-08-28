@@ -549,54 +549,38 @@ func (n *node[Key, Value]) walkRight(sentinel *node[Key, Value], from, to Key,
 //
 // The Tree shouldn't be modified inside the WalkFunc.
 func (t *Tree[Key, Value]) Walk(from, to Key,
-	walkFunc WalkFunc[Key, Value]) error {
+	walkFunc WalkFunc[Key, Value]) (err error) {
 
-	if from == to {
-		node := t.findNode(from)
+	switch {
+	case from == to:
+		var node = t.findNode(from)
 		if node != t.sentinel {
 			return walkFunc(node.key, node.value)
 		}
-		return nil
-	} else if from < to {
+		return
+	case from < to:
 		return t.root.walkLeft(t.sentinel, from, to, walkFunc)
+	default: // to < from
 	}
 
-	// else if to < from
 	return t.root.walkRight(t.sentinel, from, to, walkFunc)
 }
 
 // Slice returns all values at given range if any.
-// O(logn+m), m = len(range), [b,e] order dependent of cpm(b, e)
-// Recursive. The required stack size is proportional to the height of the tree.
-// To simulate GraterThen and LaterThen methods use the minimum possible and
-// maximum possible values of the index. For example:
-//
-//    gt78 := tr.Slice(78, math.MaxUint)
-//
-// To take k-v pairs use Walk method with custom WalkFunc like this:
-//
-//    type Pair struct {
-//        Key   uint
-//        Value interface{}
-//    }
-//
-//    func SliceKV(tr *rbtree.Tree, from, to uint) []Pair {
-//        pr := []Pair{}
-//        walkFunc := func(key uint, value interface{}) error {
-//            pr = append(pr, Pair{key, value})
-//            return nil
-//        }
-//        tr.Walk(from, to, walkFunc)
-//        if len(pr) == 0 {
-//            return nil
-//        }
-//        return pr
-//    }
-//
 func (t *Tree[Key, Value]) Slice(from, to Key) (vals []Value) {
 	var walkFunc = func(_ Key, value Value) error {
 		vals = append(vals, value)
 		return nil
+	}
+	t.Walk(from, to, walkFunc)
+	return
+}
+
+// SliceKeys returns all keys at given range if any.
+func (t *Tree[Key, Value]) SliceKeys(from, to Key) (keys []Key) {
+	var walkFunc = func(key Key, _ Value) (err error) {
+		keys = append(keys, key)
+		return
 	}
 	t.Walk(from, to, walkFunc)
 	return

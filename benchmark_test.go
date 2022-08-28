@@ -41,6 +41,14 @@ import (
 	"testing"
 )
 
+var (
+	globalString    string
+	globalBool      bool
+	globalErr       error
+	globalSlice     []string
+	globalSliceKeys []int
+)
+
 func Benchmark(b *testing.B) {
 	b.Run("sequential", func(b *testing.B) {
 		b.Run("set", sequentialSet)
@@ -53,7 +61,8 @@ func Benchmark(b *testing.B) {
 		b.Run("min", sequentialMin)
 		b.Run("max", sequentialMax)
 		b.Run("walk", sequentialWlk)
-		b.Run("slice", sequentialRng)
+		b.Run("slice", sequentialSlice)
+		b.Run("slice-keys", sequentialSliceKeys)
 	})
 	b.Run("random", func(b *testing.B) {
 		b.Run("set", randomSet)
@@ -67,6 +76,7 @@ func Benchmark(b *testing.B) {
 		b.Run("max", randomMax)
 		b.Run("walk", randomWalk)
 		b.Run("slice", randomSlice)
+		b.Run("slice-keys", randomSliceKeys)
 	})
 }
 
@@ -94,7 +104,7 @@ func sequentialGet(b *testing.B) {
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		tr.Get(i)
+		globalString = tr.Get(i)
 	}
 	b.ReportAllocs()
 }
@@ -107,7 +117,7 @@ func sequentialGetEx(b *testing.B) {
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		tr.GetEx(i)
+		globalString, globalBool = tr.GetEx(i)
 	}
 	b.ReportAllocs()
 }
@@ -120,7 +130,7 @@ func sequentialDel(b *testing.B) {
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		tr.Del(i)
+		globalBool = tr.Del(i)
 	}
 	b.ReportAllocs()
 }
@@ -133,7 +143,7 @@ func sequentialIsExists(b *testing.B) {
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		tr.IsExist(i)
+		globalBool = tr.IsExist(i)
 	}
 	b.ReportAllocs()
 }
@@ -147,7 +157,7 @@ func sequentialMove(b *testing.B) {
 	b.StartTimer()
 	var ln = tr.Len()
 	for i := 0; i < ln; i++ {
-		tr.Move(i, ln-i)
+		globalBool = tr.Move(i, ln-i)
 	}
 	b.ReportAllocs()
 }
@@ -160,7 +170,7 @@ func sequentialMin(b *testing.B) {
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		tr.Min()
+		_, globalString = tr.Min()
 	}
 	b.ReportAllocs()
 }
@@ -173,7 +183,7 @@ func sequentialMax(b *testing.B) {
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		tr.Max()
+		_, globalString = tr.Max()
 	}
 	b.ReportAllocs()
 }
@@ -189,19 +199,34 @@ func sequentialWlk(b *testing.B) {
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		tr.Walk(math.MinInt, math.MaxInt, walkFunc)
+		globalErr = tr.Walk(math.MinInt, math.MaxInt, walkFunc)
 	}
 	b.ReportAllocs()
 }
 
-func sequentialRng(b *testing.B) {
+func sequentialSlice(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
 	for i := 0; i < b.N; i++ {
 		tr.Set(i, "")
 	}
 	b.StartTimer()
-	tr.Slice(math.MinInt, math.MaxInt)
+	for i := 0; i < b.N; i++ {
+		globalSlice = tr.Slice(math.MinInt, math.MaxInt)
+	}
+	b.ReportAllocs()
+}
+
+func sequentialSliceKeys(b *testing.B) {
+	b.StopTimer()
+	var tr = New[int, string]()
+	for i := 0; i < b.N; i++ {
+		tr.Set(i, "")
+	}
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		globalSliceKeys = tr.SliceKeys(math.MinInt, math.MaxInt)
+	}
 	b.ReportAllocs()
 }
 
@@ -254,7 +279,7 @@ func randomGet(b *testing.B) {
 	shuffle(ks)
 	b.StartTimer()
 	for _, k := range ks {
-		tr.Get(k)
+		globalString = tr.Get(k)
 	}
 	b.ReportAllocs()
 }
@@ -271,7 +296,7 @@ func randomGetEx(b *testing.B) {
 	shuffle(ks)
 	b.StartTimer()
 	for _, k := range ks {
-		tr.GetEx(k)
+		globalString, globalBool = tr.GetEx(k)
 	}
 	b.ReportAllocs()
 }
@@ -288,7 +313,7 @@ func randomDel(b *testing.B) {
 	shuffle(ks)
 	b.StartTimer()
 	for _, t := range ks {
-		tr.Del(t)
+		globalBool = tr.Del(t)
 	}
 	b.ReportAllocs()
 }
@@ -305,7 +330,7 @@ func randomIsExists(b *testing.B) {
 	shuffle(ks)
 	b.StartTimer()
 	for _, t := range ks {
-		tr.IsExist(t)
+		globalBool = tr.IsExist(t)
 	}
 	b.ReportAllocs()
 }
@@ -319,7 +344,7 @@ func randomMove(b *testing.B) {
 	var ln = tr.Len()
 	b.StartTimer()
 	for i := 0; i < ln; i++ {
-		tr.Move(i, ln-i)
+		globalBool = tr.Move(i, ln-i)
 	}
 	b.ReportAllocs()
 }
@@ -333,7 +358,7 @@ func randomMin(b *testing.B) {
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		tr.Min()
+		_, globalString = tr.Min()
 	}
 	b.ReportAllocs()
 }
@@ -347,7 +372,7 @@ func randomMax(b *testing.B) {
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		tr.Max()
+		_, globalString = tr.Max()
 	}
 	b.ReportAllocs()
 }
@@ -364,7 +389,7 @@ func randomWalk(b *testing.B) {
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		tr.Walk(math.MinInt, math.MaxInt, walkFunc)
+		globalErr = tr.Walk(math.MinInt, math.MaxInt, walkFunc)
 	}
 	b.ReportAllocs()
 }
@@ -378,7 +403,21 @@ func randomSlice(b *testing.B) {
 	}
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
-		tr.Slice(math.MinInt, math.MaxInt)
+		globalSlice = tr.Slice(math.MinInt, math.MaxInt)
+	}
+	b.ReportAllocs()
+}
+
+func randomSliceKeys(b *testing.B) {
+	b.StopTimer()
+	var tr = New[int, string]()
+	for i := 0; i < b.N; i++ {
+		var k = int(rand.Int63n(math.MaxInt))
+		tr.Set(k, "")
+	}
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		globalSliceKeys = tr.SliceKeys(math.MinInt, math.MaxInt)
 	}
 	b.ReportAllocs()
 }

@@ -3,6 +3,13 @@ Changelog
 
 # v1.0
 
+Sun Aug 28 18:54:57 +03 2022
+
+1. Add `SliceKeys` method.
+2. Improve tests.
+
+# v1.0
+
 Sat Aug 27 23:59:49 +03 2022
 
 1. rename package `ebony` -> `rbtree`
