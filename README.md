@@ -30,8 +30,8 @@ It uses a comparable type as a key and any type as a value.
 | Max     | O(log<sub>2</sub>*n*)  |
 | Min     | O(log<sub>2</sub>*n*)  |
 | Empty   | O(1)       |
-| Walk    | O(range)   |
-| Slice   | O(range)   |
+| Walk    | O(log<sub>2</sub>*n* + *m*)   |
+| Slice   | O(log<sub>2</sub>*n* + *m*)   |
 
 ### Memory usage
 
