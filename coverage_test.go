@@ -41,7 +41,7 @@ import (
 	"testing"
 )
 
-func TestNilRange(t *testing.T) {
+func Test_NilRange(t *testing.T) {
 	var tr = New[int, string]()
 	tr.Set(0, "x")
 	tr.Set(1, "y")
@@ -53,7 +53,7 @@ func TestNilRange(t *testing.T) {
 	}
 }
 
-func TestNilWalk(t *testing.T) {
+func Test_NilWalk(t *testing.T) {
 	var tr = New[int, string]()
 	tr.Set(0, "x")
 	tr.Set(1, "y")
@@ -73,7 +73,7 @@ func TestNilWalk(t *testing.T) {
 	}
 }
 
-func TestOneNilWalk(t *testing.T) {
+func Test_OneNilWalk(t *testing.T) {
 	var tr = New[int, string]()
 	tr.Set(0, "x")
 	tr.Set(1, "y")
@@ -90,7 +90,7 @@ func TestOneNilWalk(t *testing.T) {
 	}
 }
 
-func TestDelNil(t *testing.T) {
+func Test_DelNil(t *testing.T) {
 	const x = "x"
 	var tr = New[int, string]()
 	tr.Set(0, x)

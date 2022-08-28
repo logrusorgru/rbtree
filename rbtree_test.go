@@ -58,11 +58,24 @@ func TestTree(t *testing.T) {
 	var tr = New[int, string]()
 
 	assert.Equal(t, "", tr.Get(579))
+	var val, ok = tr.GetEx(579)
+	assert.Zero(t, val)
+	assert.False(t, ok)
+	assert.False(t, tr.Del(579))
 
 	tr.Set(0, x)
 	assert.Equal(t, 1, tr.Len())
 	assert.Equal(t, x, tr.Get(0))
+	assert.False(t, tr.SetNx(0, x))
+	assert.Equal(t, 1, tr.Len())
+	assert.Equal(t, x, tr.Get(0))
+	assert.True(t, tr.SetNx(1, y))
+	assert.Equal(t, 2, tr.Len())
+	assert.Equal(t, y, tr.Get(1))
 
+	assert.True(t, tr.Del(1))
+	assert.Equal(t, 1, tr.Len())
+	assert.Equal(t, "", tr.Get(1))
 	tr.Del(0)
 	assert.Equal(t, 0, tr.Len())
 	assert.Equal(t, "", tr.Get(0))
@@ -71,7 +84,12 @@ func TestTree(t *testing.T) {
 	tr.Set(0, x)
 	assert.True(t, tr.IsExist(0))
 
-	tr.Move(0, 1)
+	assert.True(t, tr.Move(0, 1))
+	assert.Equal(t, 1, tr.Len())
+	assert.Equal(t, "", tr.Get(0))
+	assert.Equal(t, x, tr.Get(1))
+
+	assert.False(t, tr.Move(579, 975))
 	assert.Equal(t, 1, tr.Len())
 	assert.Equal(t, "", tr.Get(0))
 	assert.Equal(t, x, tr.Get(1))
@@ -84,9 +102,11 @@ func TestTree(t *testing.T) {
 	tr.Set(2, y)
 	tr.Set(3, z)
 	assert.Equal(t, 3, tr.Len())
+
 	var maxKey, maxValue = tr.Max()
 	assert.Equal(t, 3, maxKey)
 	assert.Equal(t, z, maxValue)
+
 	var minKey, minValue = tr.Min()
 	assert.Equal(t, 1, minKey)
 	assert.Equal(t, x, minValue)
@@ -131,4 +151,8 @@ func TestTree(t *testing.T) {
 		return ErrStop
 	})
 	assert.Equal(t, ErrStop, err)
+
+	tr.Del(1)
+	tr.Del(2)
+	tr.Del(3)
 }

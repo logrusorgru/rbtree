@@ -131,7 +131,7 @@ func ExampleTree_Empty() {
 	// 0
 }
 
-func ExampleTree_Range() {
+func ExampleTree_Slice() {
 	var tr = New[int, string]()
 	tr.Set(0, "zero")
 	tr.Set(1, "one")

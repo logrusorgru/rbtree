@@ -41,7 +41,36 @@ import (
 	"testing"
 )
 
-func BenchmarkSeqSet(b *testing.B) {
+func Benchmark(b *testing.B) {
+	b.Run("sequential", func(b *testing.B) {
+		b.Run("set", sequentialSet)
+		b.Run("set-nx", sequentialSetNx)
+		b.Run("get", sequentialGet)
+		b.Run("get-ex", sequentialGetEx)
+		b.Run("del", sequentialDel)
+		b.Run("is-exist", sequentialIsExists)
+		b.Run("move", sequentialMove)
+		b.Run("min", sequentialMin)
+		b.Run("max", sequentialMax)
+		b.Run("walk", sequentialWlk)
+		b.Run("slice", sequentialRng)
+	})
+	b.Run("random", func(b *testing.B) {
+		b.Run("set", randomSet)
+		b.Run("set-nx", randomSetNx)
+		b.Run("get", randomGet)
+		b.Run("get-ex", randomGetEx)
+		b.Run("del", randomDel)
+		b.Run("is-exists", randomIsExists)
+		b.Run("move", randomMove)
+		b.Run("min", randomMin)
+		b.Run("max", randomMax)
+		b.Run("walk", randomWalk)
+		b.Run("slice", randomSlice)
+	})
+}
+
+func sequentialSet(b *testing.B) {
 	var tr = New[int, string]()
 	for i := 0; i < b.N; i++ {
 		tr.Set(i, "")
@@ -49,7 +78,15 @@ func BenchmarkSeqSet(b *testing.B) {
 	b.ReportAllocs()
 }
 
-func BenchmarkSeqGet(b *testing.B) {
+func sequentialSetNx(b *testing.B) {
+	var tr = New[int, string]()
+	for i := 0; i < b.N; i++ {
+		tr.SetNx(i, "")
+	}
+	b.ReportAllocs()
+}
+
+func sequentialGet(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
 	for i := 0; i < b.N; i++ {
@@ -62,7 +99,20 @@ func BenchmarkSeqGet(b *testing.B) {
 	b.ReportAllocs()
 }
 
-func BenchmarkSeqDel(b *testing.B) {
+func sequentialGetEx(b *testing.B) {
+	b.StopTimer()
+	var tr = New[int, string]()
+	for i := 0; i < b.N; i++ {
+		tr.Set(i, "")
+	}
+	b.StartTimer()
+	for i := 0; i < b.N; i++ {
+		tr.GetEx(i)
+	}
+	b.ReportAllocs()
+}
+
+func sequentialDel(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
 	for i := 0; i < b.N; i++ {
@@ -75,7 +125,7 @@ func BenchmarkSeqDel(b *testing.B) {
 	b.ReportAllocs()
 }
 
-func BenchmarkSeqExs(b *testing.B) {
+func sequentialIsExists(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
 	for i := 0; i < b.N; i++ {
@@ -88,7 +138,7 @@ func BenchmarkSeqExs(b *testing.B) {
 	b.ReportAllocs()
 }
 
-func BenchmarkSeqMov(b *testing.B) {
+func sequentialMove(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
 	for i := 0; i < b.N; i++ {
@@ -102,7 +152,7 @@ func BenchmarkSeqMov(b *testing.B) {
 	b.ReportAllocs()
 }
 
-func BenchmarkSeqMin(b *testing.B) {
+func sequentialMin(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
 	for i := 0; i < b.N; i++ {
@@ -115,7 +165,7 @@ func BenchmarkSeqMin(b *testing.B) {
 	b.ReportAllocs()
 }
 
-func BenchmarkSeqMax(b *testing.B) {
+func sequentialMax(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
 	for i := 0; i < b.N; i++ {
@@ -128,7 +178,7 @@ func BenchmarkSeqMax(b *testing.B) {
 	b.ReportAllocs()
 }
 
-func BenchmarkSeqWlk(b *testing.B) {
+func sequentialWlk(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
 	for i := 0; i < b.N; i++ {
@@ -138,11 +188,13 @@ func BenchmarkSeqWlk(b *testing.B) {
 		return nil
 	}
 	b.StartTimer()
-	tr.Walk(math.MinInt, math.MaxInt, walkFunc)
+	for i := 0; i < b.N; i++ {
+		tr.Walk(math.MinInt, math.MaxInt, walkFunc)
+	}
 	b.ReportAllocs()
 }
 
-func BenchmarkSeqRng(b *testing.B) {
+func sequentialRng(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
 	for i := 0; i < b.N; i++ {
@@ -162,7 +214,7 @@ func shuffle(ary []int) {
 	}
 }
 
-func BenchmarkRndSet(b *testing.B) {
+func randomSet(b *testing.B) {
 	b.StopTimer()
 	ks := make([]int, 0, b.N)
 	for i := 0; i < b.N; i++ {
@@ -176,7 +228,21 @@ func BenchmarkRndSet(b *testing.B) {
 	b.ReportAllocs()
 }
 
-func BenchmarkRndGet(b *testing.B) {
+func randomSetNx(b *testing.B) {
+	b.StopTimer()
+	ks := make([]int, 0, b.N)
+	for i := 0; i < b.N; i++ {
+		ks = append(ks, int(rand.Int63n(math.MaxInt)))
+	}
+	var tr = New[int, string]()
+	b.StartTimer()
+	for _, t := range ks {
+		tr.SetNx(t, "")
+	}
+	b.ReportAllocs()
+}
+
+func randomGet(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
 	ks := make([]int, 0, b.N)
@@ -187,13 +253,30 @@ func BenchmarkRndGet(b *testing.B) {
 	}
 	shuffle(ks)
 	b.StartTimer()
-	for _, t := range ks {
-		tr.Set(t, "")
+	for _, k := range ks {
+		tr.Get(k)
 	}
 	b.ReportAllocs()
 }
 
-func BenchmarkRndDel(b *testing.B) {
+func randomGetEx(b *testing.B) {
+	b.StopTimer()
+	var tr = New[int, string]()
+	ks := make([]int, 0, b.N)
+	for i := 0; i < b.N; i++ {
+		k := int(rand.Int63n(math.MaxInt))
+		ks = append(ks, k)
+		tr.Set(k, "")
+	}
+	shuffle(ks)
+	b.StartTimer()
+	for _, k := range ks {
+		tr.GetEx(k)
+	}
+	b.ReportAllocs()
+}
+
+func randomDel(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
 	ks := make([]int, 0, b.N)
@@ -210,7 +293,7 @@ func BenchmarkRndDel(b *testing.B) {
 	b.ReportAllocs()
 }
 
-func BenchmarkRndExs(b *testing.B) {
+func randomIsExists(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
 	ks := make([]int, 0, b.N)
@@ -227,7 +310,7 @@ func BenchmarkRndExs(b *testing.B) {
 	b.ReportAllocs()
 }
 
-func BenchmarkRndMov(b *testing.B) {
+func randomMove(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
 	for i := 0; i < b.N; i++ {
@@ -241,69 +324,61 @@ func BenchmarkRndMov(b *testing.B) {
 	b.ReportAllocs()
 }
 
-func BenchmarkRndMin(b *testing.B) {
+func randomMin(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
-	ks := make([]int, 0, b.N)
 	for i := 0; i < b.N; i++ {
-		k := int(rand.Int63n(math.MaxInt))
-		ks = append(ks, k)
+		var k = int(rand.Int63n(math.MaxInt))
 		tr.Set(k, "")
 	}
-	shuffle(ks)
 	b.StartTimer()
-	for range ks {
+	for i := 0; i < b.N; i++ {
 		tr.Min()
 	}
 	b.ReportAllocs()
 }
 
-func BenchmarkRndMax(b *testing.B) {
+func randomMax(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
-	ks := make([]int, 0, b.N)
 	for i := 0; i < b.N; i++ {
-		k := int(rand.Int63n(math.MaxInt))
-		ks = append(ks, k)
+		var k = int(rand.Int63n(math.MaxInt))
 		tr.Set(k, "")
 	}
-	shuffle(ks)
 	b.StartTimer()
-	for range ks {
+	for i := 0; i < b.N; i++ {
 		tr.Max()
 	}
 	b.ReportAllocs()
 }
 
-func BenchmarkRndWlk(b *testing.B) {
+func randomWalk(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
-	ks := make([]int, 0, b.N)
 	for i := 0; i < b.N; i++ {
-		k := int(rand.Int63n(math.MaxInt))
-		ks = append(ks, k)
+		var k = int(rand.Int63n(math.MaxInt))
 		tr.Set(k, "")
 	}
-	shuffle(ks)
 	var walkFunc = func(_ int, _ string) error {
 		return nil
 	}
 	b.StartTimer()
-	tr.Walk(math.MinInt, math.MaxInt, walkFunc)
+	for i := 0; i < b.N; i++ {
+		tr.Walk(math.MinInt, math.MaxInt, walkFunc)
+	}
 	b.ReportAllocs()
 }
 
-func BenchmarkRndRng(b *testing.B) {
+func randomSlice(b *testing.B) {
 	b.StopTimer()
 	var tr = New[int, string]()
-	ks := make([]int, 0, b.N)
 	for i := 0; i < b.N; i++ {
-		k := int(rand.Int63n(math.MaxInt))
-		ks = append(ks, k)
+		var k = int(rand.Int63n(math.MaxInt))
 		tr.Set(k, "")
 	}
-	shuffle(ks)
 	b.StartTimer()
-	tr.Slice(math.MinInt, math.MaxInt)
+	for i := 0; i < b.N; i++ {
+		tr.Slice(math.MinInt, math.MaxInt)
+	}
 	b.ReportAllocs()
 }

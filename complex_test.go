@@ -47,7 +47,7 @@ const Count = 10000
 
 // complex tests
 
-func TestRandomSetGetDel(t *testing.T) {
+func Test_randomSetGetDel(t *testing.T) {
 
 	var (
 		tr = New[int64, int64]()
@@ -72,7 +72,8 @@ func TestRandomSetGetDel(t *testing.T) {
 	}
 }
 
-func TestCritIndex(t *testing.T) {
+func Test_extremums(t *testing.T) {
+
 	var (
 		tr       = New[int, string]()
 		min, max = "min", "max"
@@ -83,18 +84,18 @@ func TestCritIndex(t *testing.T) {
 	assert.Equal(t, tr.Get(math.MinInt), min)
 }
 
-func TestNilSet(t *testing.T) {
-	var tr = New[int, string]()
-	tr.Set(0, "")
-	tr.Set(1, "")
-	tr.Set(2, "")
+func Test_zeroValuesSet(t *testing.T) {
+	var tr = New[int, struct{}]()
+	tr.Set(0, struct{}{})
+	tr.Set(1, struct{}{})
+	tr.Set(2, struct{}{})
 	assert.Equal(t, 3, tr.Len())
 	for _, j := range []int{0, 1, 2} {
 		assert.True(t, tr.IsExist(j))
 	}
 }
 
-func TestOneSizeRange(t *testing.T) {
+func Test_oneSizeSlice(t *testing.T) {
 	var tr = New[int, string]()
 	tr.Set(0, "a")
 	tr.Set(1, "b")
@@ -104,7 +105,7 @@ func TestOneSizeRange(t *testing.T) {
 	}
 }
 
-func TestOneSizeWalk(t *testing.T) {
+func Test_oneSizeWalk(t *testing.T) {
 	var tr = New[int, string]()
 	tr.Set(0, "a")
 	tr.Set(1, "b")
@@ -144,7 +145,7 @@ func qsort(a []int) {
 	qsort(a[left+1:])
 }
 
-func TestRandomSetRange(t *testing.T) {
+func Test_randomSetSlice(t *testing.T) {
 
 	var (
 		tr = New[int, int64]()
@@ -188,7 +189,7 @@ func TestRandomSetRange(t *testing.T) {
 	}
 }
 
-func TestRandomSetWalk(t *testing.T) {
+func Test_randomSetWalk(t *testing.T) {
 
 	var (
 		tr = New[int, int64]()
@@ -222,30 +223,35 @@ func TestRandomSetWalk(t *testing.T) {
 	assert.Equal(t, count, len(kv))
 }
 
-/* moved to draft
-Test result:
+/*
 
---- FAIL: TestRandomSetWalkDel (0.05s)
-        complex_test.go:211: [random set walk del] wrong number of steps, expected 10000, got 4824
-FAIL
-exit status 1
-FAIL    github.com/logrusorgru/ebony    0.189s
+tree modification not allowed in a WalkFunc
 
-func TestRandomSetWalkDel(t *testing.T) {
-	tr := New()
-	kv := make(map[uint]int64)
+func Test_randomSetWalkDel(t *testing.T) {
+
+	var (
+		tr = New[int, int64]()
+		kv = make(map[int]int64)
+	)
+
 	for i := 0; i < Count; i++ {
-		k := uint(rand.Int63n(math.MaxInt))
-		v := rand.Int63n(math.MaxInt)
+		var (
+			k = int(rand.Int63n(math.MaxInt))
+			v = rand.Int63n(math.MaxInt)
+		)
 		tr.Set(k, v)
 		kv[k] = v
-		if uint(len(kv)) != tr.Count() {
-			t.Errorf("[random set walk del] wrong count, expected %d, got %d", len(kv), tr.Count())
+		if len(kv) != tr.Len() {
+			t.Errorf("[random set walk del] wrong count, expected %d, got %d",
+				len(kv), tr.Len())
 		}
 	}
-	var pkey uint
-	counter := 0
-	wl := func(key uint, _ interface{}) error {
+
+	var (
+		pkey    int
+		counter = 0
+	)
+	var walkFunc = func(key int, _ int64) error {
 		if key != 0 {
 			if pkey >= key {
 				return errors.New("walking out of order")
@@ -253,14 +259,16 @@ func TestRandomSetWalkDel(t *testing.T) {
 		}
 		pkey = key
 		counter++
-		tr.Del(key)
+		// tr.Del(key)
 		return nil
 	}
-	if err := tr.Walk(math.MinInt, math.MaxInt, wl); err != nil {
+	if err := tr.Walk(math.MinInt, math.MaxInt, walkFunc); err != nil {
 		t.Errorf("[random set walk del] unexpected walking error '%v'", err)
 	}
 	if counter != len(kv) {
-		t.Errorf("[random set walk del] wrong number of steps, expected %d, got %d", len(kv), counter)
+		t.Errorf("[random set walk del] wrong number of steps, expected %d, got %d",
+			len(kv), counter)
 	}
 }
+
 */

@@ -174,8 +174,8 @@ func (t *Tree[Key, Value]) insertFixup(x *node[Key, Value]) {
 	t.root.color = black
 }
 
-// silent rewrite if exist
-func (t *Tree[Key, Value]) insertNode(key Key, value Value) {
+func (t *Tree[Key, Value]) insertNode(key Key, value Value, overwrite bool) (
+	added bool) {
 
 	var (
 		current = t.root
@@ -185,7 +185,10 @@ func (t *Tree[Key, Value]) insertNode(key Key, value Value) {
 
 	for current != t.sentinel {
 		if key == current.key {
-			current.value = value
+			if overwrite {
+				current.value = value
+				return
+			}
 			return
 		}
 		parent = current
@@ -217,6 +220,7 @@ func (t *Tree[Key, Value]) insertNode(key Key, value Value) {
 
 	t.insertFixup(x)
 	t.len++
+	return true
 }
 
 func (t *Tree[Key, Value]) deleteFixup(x *node[Key, Value]) {
@@ -288,7 +292,7 @@ func (t *Tree[Key, Value]) deleteFixup(x *node[Key, Value]) {
 func (t *Tree[Key, Value]) deleteNode(z *node[Key, Value]) {
 
 	var x, y *node[Key, Value]
-	if z == nil || z == t.sentinel {
+	if z == t.sentinel {
 		return
 	}
 
@@ -346,27 +350,34 @@ func (t *Tree[Key, Value]) findNode(key Key) *node[Key, Value] {
 		}
 	}
 
-	return t.sentinel
+	return current // root sentinel
+}
+
+func newSentinel[Key constraints.Ordered, Value any]() (
+	sentinel *node[Key, Value]) {
+
+	var (
+		zeroKey   Key
+		zeroValue Value
+	)
+
+	sentinel = &node[Key, Value]{
+		left:   nil,
+		right:  nil,
+		parent: nil,
+		color:  black,
+		key:    zeroKey,
+		value:  zeroValue,
+	}
+
+	sentinel.left, sentinel.right = sentinel, sentinel
+	return
 }
 
 // New creates the new RB-Tree
 func New[Key constraints.Ordered, Value any]() *Tree[Key, Value] {
 
-	var (
-		zeroKey   Key
-		zeroValue Value
-
-		sentinel = &node[Key, Value]{
-			left:   nil,
-			right:  nil,
-			parent: nil,
-			color:  black,
-			key:    zeroKey,
-			value:  zeroValue,
-		}
-	)
-
-	sentinel.left, sentinel.right = sentinel, sentinel
+	var sentinel = newSentinel[Key, Value]()
 
 	return &Tree[Key, Value]{
 		sentinel: sentinel,
@@ -382,18 +393,33 @@ func New[Key constraints.Ordered, Value any]() *Tree[Key, Value] {
 //    }
 //
 // Its complexity from O(logn) to O(2logn)
-func (t *Tree[Key, Value]) Set(key Key, value Value) {
-	t.insertNode(key, value)
+func (t *Tree[Key, Value]) Set(key Key, value Value) (added bool) {
+	return t.insertNode(key, value, true)
 }
 
-// Del deletes the value. Silent O(logn)
-func (t *Tree[Key, Value]) Del(key Key) {
-	t.deleteNode(t.findNode(key))
+// SetNx doesn't overwrites an existing value.
+func (t *Tree[Key, Value]) SetNx(key Key, value Value) (added bool) {
+	return t.insertNode(key, value, false)
 }
 
-// Get O(logn)
+// Del deletes value by key. Silent O(logn). It returns false,
+// if key doesn't exits.
+func (t *Tree[Key, Value]) Del(key Key) (deleted bool) {
+	var node = t.findNode(key)
+	deleted = (node != t.sentinel)
+	t.deleteNode(node)
+	return
+}
+
+// Get O(logn). It returns zero value, if key doesn't exist.
 func (t *Tree[Key, Value]) Get(key Key) Value {
 	return t.findNode(key).value
+}
+
+// GetEx O(logn). It returns false, if key doesn't exist.
+func (t *Tree[Key, Value]) GetEx(key Key) (val Value, ok bool) {
+	var node = t.findNode(key)
+	return node.value, node != t.sentinel
 }
 
 // IsExist O(logn)
@@ -407,12 +433,14 @@ func (t *Tree[Key, Value]) Len() int {
 }
 
 // Move moves the value from one index to another. Silent.
-// It just changes index of value O(2logn)
-func (t *Tree[Key, Value]) Move(oldKey, newKey Key) {
+// It just changes index of value O(2logn).
+func (t *Tree[Key, Value]) Move(oldKey, newKey Key) (moved bool) {
 	if n := t.findNode(oldKey); n != t.sentinel {
-		t.insertNode(newKey, n.value)
+		t.insertNode(newKey, n.value, true)
 		t.deleteNode(n)
+		return true
 	}
+	return // false
 }
 
 // Empty makes the tree empty O(1). It returns the Tree itself.
@@ -433,7 +461,7 @@ func (t *Tree[Key, Value]) Max() (Key, Value) {
 	return current.key, current.value
 }
 
-// Min returns minimum indedx and its value O(logn)
+// Min returns minimum indexed and its value O(logn)
 func (t *Tree[Key, Value]) Min() (Key, Value) {
 
 	var current = t.root
@@ -453,53 +481,62 @@ type WalkFunc[Key constraints.Ordered, Value any] func(key Key,
 var ErrStop = errors.New("stop a walking")
 
 func (n *node[Key, Value]) walkLeft(sentinel *node[Key, Value], from, to Key,
-	wl WalkFunc[Key, Value]) error {
+	walkFunc WalkFunc[Key, Value]) (err error) {
 
 	if n.key > from {
 		if n.left != sentinel {
-			if err := n.left.walkLeft(sentinel, from, to, wl); err != nil {
-				return err
+			if err = n.left.walkLeft(sentinel, from, to, walkFunc); err != nil {
+				return
 			}
 		}
 	}
+
 	if n.key >= from && n.key <= to {
-		if err := wl(n.key, n.value); err != nil {
-			return err
+		if err = walkFunc(n.key, n.value); err != nil {
+			return
 		}
 	}
+
 	if n.key < to {
 		if n.right != sentinel {
-			if err := n.right.walkLeft(sentinel, from, to, wl); err != nil {
-				return err
+			err = n.right.walkLeft(sentinel, from, to, walkFunc)
+			if err != nil {
+				return
 			}
 		}
 	}
-	return nil
+
+	return // nil
 }
 
 func (n *node[Key, Value]) walkRight(sentinel *node[Key, Value], from, to Key,
-	wl WalkFunc[Key, Value]) error {
+	walkFunc WalkFunc[Key, Value]) (err error) {
 
 	if n.key < from {
 		if n.right != sentinel {
-			if err := n.right.walkRight(sentinel, from, to, wl); err != nil {
-				return err
+			err = n.right.walkRight(sentinel, from, to, walkFunc)
+			if err != nil {
+				return
 			}
 		}
 	}
+
 	if n.key <= from && n.key >= to {
-		if err := wl(n.key, n.value); err != nil {
-			return err
+		if err = walkFunc(n.key, n.value); err != nil {
+			return
 		}
 	}
+
 	if n.key > to {
 		if n.left != sentinel {
-			if err := n.left.walkRight(sentinel, from, to, wl); err != nil {
-				return err
+			err = n.left.walkRight(sentinel, from, to, walkFunc)
+			if err != nil {
+				return
 			}
 		}
 	}
-	return nil
+
+	return // nil
 }
 
 // Walk on the Tree.
@@ -517,24 +554,25 @@ func (n *node[Key, Value]) walkRight(sentinel *node[Key, Value], from, to Key,
 //
 //    tr.Walk(math.MinUint, math.MaxUint, walkFunc)
 //
+// The Tree shouldn't be modified inside the WalkFunc.
 func (t *Tree[Key, Value]) Walk(from, to Key,
-	wl WalkFunc[Key, Value]) error {
+	walkFunc WalkFunc[Key, Value]) error {
 
 	if from == to {
 		node := t.findNode(from)
 		if node != t.sentinel {
-			return wl(node.key, node.value)
+			return walkFunc(node.key, node.value)
 		}
 		return nil
 	} else if from < to {
-		return t.root.walkLeft(t.sentinel, from, to, wl)
+		return t.root.walkLeft(t.sentinel, from, to, walkFunc)
 	}
 
 	// else if to < from
-	return t.root.walkRight(t.sentinel, from, to, wl)
+	return t.root.walkRight(t.sentinel, from, to, walkFunc)
 }
 
-// Slice returns all values in given range if any.
+// Slice returns all values at given range if any.
 // O(logn+m), m = len(range), [b,e] order dependent of cpm(b, e)
 // Recursive. The required stack size is proportional to the height of the tree.
 // To simulate GraterThen and LaterThen methods use the minimum possible and
