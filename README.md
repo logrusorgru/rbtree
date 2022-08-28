@@ -19,16 +19,16 @@ It uses a comparable type as a key and any type as a value.
 
 | Method name | Time   |
 |:-----------:|:------:|
-| Set     | O(log*n*)  |
-| SetNx   | O(log*n*)  |
-| Del     | O(log*n*)  |
-| Get     | O(log*n*)  |
-| GetEx   | O(log*n*)  |
-| IsExist | O(log*n*)  |
+| Set     | O(log<sub>2</sub>*n*)  |
+| SetNx   | O(log<sub>2</sub>*n*)  |
+| Del     | O(log<sub>2</sub>*n*)  |
+| Get     | O(log<sub>2</sub>*n*)  |
+| GetEx   | O(log<sub>2</sub>*n*)  |
+| IsExist | O(log<sub>2</sub>*n*)  |
 | Len     | O(1)       |
-| Move    | O(2log*n*) |
-| Max     | O(log*n*)  |
-| Min     | O(log*n*)  |
+| Move    | O(2log<sub>2</sub>*n*) |
+| Max     | O(log<sub>2</sub>*n*)  |
+| Min     | O(log<sub>2</sub>*n*)  |
 | Empty   | O(1)       |
 | Walk    | O(range)   |
 | Slice   | O(range)   |
