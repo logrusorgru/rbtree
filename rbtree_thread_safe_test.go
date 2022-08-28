@@ -42,20 +42,20 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNew(t *testing.T) {
-	var tr = New[int, any]()
-	assert.Zero(t, tr.len, "len != 0")
-	assert.Equal(t, tr.root, tr.sentinel, "root != sentinel")
+func TestNewThreadSafe(t *testing.T) {
+	var tr = NewThreadSafe[int, any]()
+	assert.Zero(t, tr.tree.len, "len != 0")
+	assert.Equal(t, tr.tree.root, tr.tree.sentinel, "root != sentinel")
 }
 
-func TestTree(t *testing.T) {
+func TestTreeThreadSafe(t *testing.T) {
 
 	const (
 		x = "x"
 		y = "y"
 		z = "z"
 	)
-	var tr = New[int, string]()
+	var tr = NewThreadSafe[int, string]()
 
 	assert.Equal(t, "", tr.Get(579))
 	var val, ok = tr.GetEx(579)

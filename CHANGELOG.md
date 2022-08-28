@@ -7,6 +7,9 @@ Sun Aug 28 18:54:57 +03 2022
 
 1. Add `SliceKeys` method.
 2. Improve tests.
+3. `Empty` don't returns anything.
+4. Add `TreeInterface`.
+5. Add `ThreadSafeTree`.
 
 # v1.0
 

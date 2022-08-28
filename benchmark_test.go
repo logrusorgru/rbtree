@@ -49,185 +49,223 @@ var (
 	globalSliceKeys []int
 )
 
+func init() {
+	rand.Seed(1050)
+}
+
 func Benchmark(b *testing.B) {
-	b.Run("sequential", func(b *testing.B) {
-		b.Run("set", sequentialSet)
-		b.Run("set-nx", sequentialSetNx)
-		b.Run("get", sequentialGet)
-		b.Run("get-ex", sequentialGetEx)
-		b.Run("del", sequentialDel)
-		b.Run("is-exist", sequentialIsExists)
-		b.Run("move", sequentialMove)
-		b.Run("min", sequentialMin)
-		b.Run("max", sequentialMax)
-		b.Run("walk", sequentialWlk)
-		b.Run("slice", sequentialSlice)
-		b.Run("slice-keys", sequentialSliceKeys)
-	})
-	b.Run("random", func(b *testing.B) {
-		b.Run("set", randomSet)
-		b.Run("set-nx", randomSetNx)
-		b.Run("get", randomGet)
-		b.Run("get-ex", randomGetEx)
-		b.Run("del", randomDel)
-		b.Run("is-exists", randomIsExists)
-		b.Run("move", randomMove)
-		b.Run("min", randomMin)
-		b.Run("max", randomMax)
-		b.Run("walk", randomWalk)
-		b.Run("slice", randomSlice)
-		b.Run("slice-keys", randomSliceKeys)
-	})
+	for _, nt := range []struct {
+		name string
+		tr   TreeInterface[int, string]
+	}{
+		{"tree", New[int, string]()},
+		{"thread-safe", NewThreadSafe[int, string]()},
+	} {
+		b.Run(nt.name, func(b *testing.B) {
+			b.Run("sequential", func(b *testing.B) {
+				b.Run("set", sequentialSet(nt.tr))
+				b.Run("set-nx", sequentialSetNx(nt.tr))
+				b.Run("get", sequentialGet(nt.tr))
+				b.Run("get-ex", sequentialGetEx(nt.tr))
+				b.Run("del", sequentialDel(nt.tr))
+				b.Run("is-exist", sequentialIsExists(nt.tr))
+				b.Run("move", sequentialMove(nt.tr))
+				b.Run("min", sequentialMin(nt.tr))
+				b.Run("max", sequentialMax(nt.tr))
+				b.Run("walk", sequentialWlk(nt.tr))
+				b.Run("slice", sequentialSlice(nt.tr))
+				b.Run("slice-keys", sequentialSliceKeys(nt.tr))
+			})
+			b.Run("random", func(b *testing.B) {
+				b.Run("set", randomSet(nt.tr))
+				b.Run("set-nx", randomSetNx(nt.tr))
+				b.Run("get", randomGet(nt.tr))
+				b.Run("get-ex", randomGetEx(nt.tr))
+				b.Run("del", randomDel(nt.tr))
+				b.Run("is-exists", randomIsExists(nt.tr))
+				b.Run("move", randomMove(nt.tr))
+				b.Run("min", randomMin(nt.tr))
+				b.Run("max", randomMax(nt.tr))
+				b.Run("walk", randomWalk(nt.tr))
+				b.Run("slice", randomSlice(nt.tr))
+				b.Run("slice-keys", randomSliceKeys(nt.tr))
+			})
+		})
+	}
 }
 
-func sequentialSet(b *testing.B) {
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		tr.Set(i, "")
+func sequentialSet(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			tr.Set(i, "")
+		}
+		b.ReportAllocs()
 	}
-	b.ReportAllocs()
 }
 
-func sequentialSetNx(b *testing.B) {
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		tr.SetNx(i, "")
+func sequentialSetNx(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			tr.SetNx(i, "")
+		}
+		b.ReportAllocs()
 	}
-	b.ReportAllocs()
 }
 
-func sequentialGet(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		tr.Set(i, "")
+func sequentialGet(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			tr.Set(i, "")
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			globalString = tr.Get(i)
+		}
+		b.ReportAllocs()
 	}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		globalString = tr.Get(i)
-	}
-	b.ReportAllocs()
 }
 
-func sequentialGetEx(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		tr.Set(i, "")
+func sequentialGetEx(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			tr.Set(i, "")
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			globalString, globalBool = tr.GetEx(i)
+		}
+		b.ReportAllocs()
 	}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		globalString, globalBool = tr.GetEx(i)
-	}
-	b.ReportAllocs()
 }
 
-func sequentialDel(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		tr.Set(i, "")
+func sequentialDel(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			tr.Set(i, "")
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			globalBool = tr.Del(i)
+		}
+		b.ReportAllocs()
 	}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		globalBool = tr.Del(i)
-	}
-	b.ReportAllocs()
 }
 
-func sequentialIsExists(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		tr.Set(i, "")
+func sequentialIsExists(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			tr.Set(i, "")
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			globalBool = tr.IsExist(i)
+		}
+		b.ReportAllocs()
 	}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		globalBool = tr.IsExist(i)
-	}
-	b.ReportAllocs()
 }
 
-func sequentialMove(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		tr.Set(i, "")
+func sequentialMove(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			tr.Set(i, "")
+		}
+		b.StartTimer()
+		var ln = tr.Len()
+		for i := 0; i < ln; i++ {
+			globalBool = tr.Move(i, ln-i)
+		}
+		b.ReportAllocs()
 	}
-	b.StartTimer()
-	var ln = tr.Len()
-	for i := 0; i < ln; i++ {
-		globalBool = tr.Move(i, ln-i)
-	}
-	b.ReportAllocs()
 }
 
-func sequentialMin(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		tr.Set(i, "")
+func sequentialMin(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			tr.Set(i, "")
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			_, globalString = tr.Min()
+		}
+		b.ReportAllocs()
 	}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		_, globalString = tr.Min()
-	}
-	b.ReportAllocs()
 }
 
-func sequentialMax(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		tr.Set(i, "")
+func sequentialMax(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			tr.Set(i, "")
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			_, globalString = tr.Max()
+		}
+		b.ReportAllocs()
 	}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		_, globalString = tr.Max()
-	}
-	b.ReportAllocs()
 }
 
-func sequentialWlk(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		tr.Set(i, "")
+func sequentialWlk(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			tr.Set(i, "")
+		}
+		var walkFunc = func(int, string) error {
+			return nil
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			globalErr = tr.Walk(math.MinInt, math.MaxInt, walkFunc)
+		}
+		b.ReportAllocs()
 	}
-	var walkFunc = func(int, string) error {
-		return nil
-	}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		globalErr = tr.Walk(math.MinInt, math.MaxInt, walkFunc)
-	}
-	b.ReportAllocs()
 }
 
-func sequentialSlice(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		tr.Set(i, "")
+func sequentialSlice(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			tr.Set(i, "")
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			globalSlice = tr.Slice(math.MinInt, math.MaxInt)
+		}
+		b.ReportAllocs()
 	}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		globalSlice = tr.Slice(math.MinInt, math.MaxInt)
-	}
-	b.ReportAllocs()
 }
 
-func sequentialSliceKeys(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		tr.Set(i, "")
+func sequentialSliceKeys(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			tr.Set(i, "")
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			globalSliceKeys = tr.SliceKeys(math.MinInt, math.MaxInt)
+		}
+		b.ReportAllocs()
 	}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		globalSliceKeys = tr.SliceKeys(math.MinInt, math.MaxInt)
-	}
-	b.ReportAllocs()
 }
 
 // random
@@ -239,185 +277,209 @@ func shuffle(ary []int) {
 	}
 }
 
-func randomSet(b *testing.B) {
-	b.StopTimer()
-	ks := make([]int, 0, b.N)
-	for i := 0; i < b.N; i++ {
-		ks = append(ks, int(rand.Int63n(math.MaxInt)))
+func randomSet(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		ks := make([]int, 0, b.N)
+		for i := 0; i < b.N; i++ {
+			ks = append(ks, int(rand.Int63n(math.MaxInt)))
+		}
+		tr.Empty()
+		b.StartTimer()
+		for _, t := range ks {
+			tr.Set(t, "")
+		}
+		b.ReportAllocs()
 	}
-	var tr = New[int, string]()
-	b.StartTimer()
-	for _, t := range ks {
-		tr.Set(t, "")
-	}
-	b.ReportAllocs()
 }
 
-func randomSetNx(b *testing.B) {
-	b.StopTimer()
-	ks := make([]int, 0, b.N)
-	for i := 0; i < b.N; i++ {
-		ks = append(ks, int(rand.Int63n(math.MaxInt)))
+func randomSetNx(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		ks := make([]int, 0, b.N)
+		for i := 0; i < b.N; i++ {
+			ks = append(ks, int(rand.Int63n(math.MaxInt)))
+		}
+		tr.Empty()
+		b.StartTimer()
+		for _, t := range ks {
+			tr.SetNx(t, "")
+		}
+		b.ReportAllocs()
 	}
-	var tr = New[int, string]()
-	b.StartTimer()
-	for _, t := range ks {
-		tr.SetNx(t, "")
-	}
-	b.ReportAllocs()
 }
 
-func randomGet(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	ks := make([]int, 0, b.N)
-	for i := 0; i < b.N; i++ {
-		k := int(rand.Int63n(math.MaxInt))
-		ks = append(ks, k)
-		tr.Set(k, "")
+func randomGet(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		ks := make([]int, 0, b.N)
+		for i := 0; i < b.N; i++ {
+			k := int(rand.Int63n(math.MaxInt))
+			ks = append(ks, k)
+			tr.Set(k, "")
+		}
+		shuffle(ks)
+		b.StartTimer()
+		for _, k := range ks {
+			globalString = tr.Get(k)
+		}
+		b.ReportAllocs()
 	}
-	shuffle(ks)
-	b.StartTimer()
-	for _, k := range ks {
-		globalString = tr.Get(k)
-	}
-	b.ReportAllocs()
 }
 
-func randomGetEx(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	ks := make([]int, 0, b.N)
-	for i := 0; i < b.N; i++ {
-		k := int(rand.Int63n(math.MaxInt))
-		ks = append(ks, k)
-		tr.Set(k, "")
+func randomGetEx(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		ks := make([]int, 0, b.N)
+		for i := 0; i < b.N; i++ {
+			k := int(rand.Int63n(math.MaxInt))
+			ks = append(ks, k)
+			tr.Set(k, "")
+		}
+		shuffle(ks)
+		b.StartTimer()
+		for _, k := range ks {
+			globalString, globalBool = tr.GetEx(k)
+		}
+		b.ReportAllocs()
 	}
-	shuffle(ks)
-	b.StartTimer()
-	for _, k := range ks {
-		globalString, globalBool = tr.GetEx(k)
-	}
-	b.ReportAllocs()
 }
 
-func randomDel(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	ks := make([]int, 0, b.N)
-	for i := 0; i < b.N; i++ {
-		k := int(rand.Int63n(math.MaxInt))
-		ks = append(ks, k)
-		tr.Set(k, "")
+func randomDel(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		ks := make([]int, 0, b.N)
+		for i := 0; i < b.N; i++ {
+			k := int(rand.Int63n(math.MaxInt))
+			ks = append(ks, k)
+			tr.Set(k, "")
+		}
+		shuffle(ks)
+		b.StartTimer()
+		for _, t := range ks {
+			globalBool = tr.Del(t)
+		}
+		b.ReportAllocs()
 	}
-	shuffle(ks)
-	b.StartTimer()
-	for _, t := range ks {
-		globalBool = tr.Del(t)
-	}
-	b.ReportAllocs()
 }
 
-func randomIsExists(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	ks := make([]int, 0, b.N)
-	for i := 0; i < b.N; i++ {
-		k := int(rand.Int63n(math.MaxInt))
-		ks = append(ks, k)
-		tr.Set(k, "")
+func randomIsExists(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		ks := make([]int, 0, b.N)
+		for i := 0; i < b.N; i++ {
+			k := int(rand.Int63n(math.MaxInt))
+			ks = append(ks, k)
+			tr.Set(k, "")
+		}
+		shuffle(ks)
+		b.StartTimer()
+		for _, t := range ks {
+			globalBool = tr.IsExist(t)
+		}
+		b.ReportAllocs()
 	}
-	shuffle(ks)
-	b.StartTimer()
-	for _, t := range ks {
-		globalBool = tr.IsExist(t)
-	}
-	b.ReportAllocs()
 }
 
-func randomMove(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		tr.Set(int(rand.Int63n(math.MaxInt)), "")
+func randomMove(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			tr.Set(int(rand.Int63n(math.MaxInt)), "")
+		}
+		var ln = tr.Len()
+		b.StartTimer()
+		for i := 0; i < ln; i++ {
+			globalBool = tr.Move(i, ln-i)
+		}
+		b.ReportAllocs()
 	}
-	var ln = tr.Len()
-	b.StartTimer()
-	for i := 0; i < ln; i++ {
-		globalBool = tr.Move(i, ln-i)
-	}
-	b.ReportAllocs()
 }
 
-func randomMin(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		var k = int(rand.Int63n(math.MaxInt))
-		tr.Set(k, "")
+func randomMin(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			var k = int(rand.Int63n(math.MaxInt))
+			tr.Set(k, "")
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			_, globalString = tr.Min()
+		}
+		b.ReportAllocs()
 	}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		_, globalString = tr.Min()
-	}
-	b.ReportAllocs()
 }
 
-func randomMax(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		var k = int(rand.Int63n(math.MaxInt))
-		tr.Set(k, "")
+func randomMax(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			var k = int(rand.Int63n(math.MaxInt))
+			tr.Set(k, "")
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			_, globalString = tr.Max()
+		}
+		b.ReportAllocs()
 	}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		_, globalString = tr.Max()
-	}
-	b.ReportAllocs()
 }
 
-func randomWalk(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		var k = int(rand.Int63n(math.MaxInt))
-		tr.Set(k, "")
+func randomWalk(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			var k = int(rand.Int63n(math.MaxInt))
+			tr.Set(k, "")
+		}
+		var walkFunc = func(_ int, _ string) error {
+			return nil
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			globalErr = tr.Walk(math.MinInt, math.MaxInt, walkFunc)
+		}
+		b.ReportAllocs()
 	}
-	var walkFunc = func(_ int, _ string) error {
-		return nil
-	}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		globalErr = tr.Walk(math.MinInt, math.MaxInt, walkFunc)
-	}
-	b.ReportAllocs()
 }
 
-func randomSlice(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		var k = int(rand.Int63n(math.MaxInt))
-		tr.Set(k, "")
+func randomSlice(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			var k = int(rand.Int63n(math.MaxInt))
+			tr.Set(k, "")
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			globalSlice = tr.Slice(math.MinInt, math.MaxInt)
+		}
+		b.ReportAllocs()
 	}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		globalSlice = tr.Slice(math.MinInt, math.MaxInt)
-	}
-	b.ReportAllocs()
 }
 
-func randomSliceKeys(b *testing.B) {
-	b.StopTimer()
-	var tr = New[int, string]()
-	for i := 0; i < b.N; i++ {
-		var k = int(rand.Int63n(math.MaxInt))
-		tr.Set(k, "")
+func randomSliceKeys(tr TreeInterface[int, string]) func(b *testing.B) {
+	return func(b *testing.B) {
+		b.StopTimer()
+		tr.Empty()
+		for i := 0; i < b.N; i++ {
+			var k = int(rand.Int63n(math.MaxInt))
+			tr.Set(k, "")
+		}
+		b.StartTimer()
+		for i := 0; i < b.N; i++ {
+			globalSliceKeys = tr.SliceKeys(math.MinInt, math.MaxInt)
+		}
+		b.ReportAllocs()
 	}
-	b.StartTimer()
-	for i := 0; i < b.N; i++ {
-		globalSliceKeys = tr.SliceKeys(math.MinInt, math.MaxInt)
-	}
-	b.ReportAllocs()
 }

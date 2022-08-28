@@ -436,11 +436,10 @@ func (t *Tree[Key, Value]) Move(oldKey, newKey Key) (moved bool) {
 	return // false
 }
 
-// Empty makes the tree empty O(1). It returns the Tree itself.
-func (t *Tree[Key, Value]) Empty() *Tree[Key, Value] {
+// Empty makes the tree empty O(1).
+func (t *Tree[Key, Value]) Empty() {
 	t.root = t.sentinel
 	t.len = 0
-	return t
 }
 
 // Max returns maximum index and its value O(logn)

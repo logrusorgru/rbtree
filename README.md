@@ -64,7 +64,7 @@ Run benchmark
 _expensive_
 
 ```bash
-go test -test.bench . github.com/logrusorgru/rbtree
+go test -timeout=30m -test.bench . github.com/logrusorgru/rbtree
 ```
 _limited_
 
